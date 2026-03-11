@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLanguage } from '../context/LanguageContext'
 import { mapLocations } from '../data/mapLocations'
 import type { MapLocation } from '../types/mapLocation'
 import { GoogleStreetView } from './GoogleStreetView'
@@ -57,21 +58,126 @@ function buildShamShuiPoTiles(): TileCoord[] {
 }
 
 const shamShuiPoTiles = buildShamShuiPoTiles()
+type LocalizedText = { en: string; zh: string; hi: string }
+
+const locationLocalized: Record<
+  string,
+  {
+    name: LocalizedText
+    shortDescription: LocalizedText
+    details: LocalizedText
+  }
+> = {
+  apliu: {
+    name: {
+      en: 'Apliu Street Electronics Market',
+      zh: '鴨寮街電子市場',
+      hi: 'अपलियू स्ट्रीट इलेक्ट्रॉनिक्स मार्केट',
+    },
+    shortDescription: {
+      en: 'Vintage gadgets, cables, and busy bargaining stalls.',
+      zh: '复古电子产品、电线与热闹讲价摊位。',
+      hi: 'विंटेज गैजेट्स, केबल्स और मोलभाव से भरे स्टॉल।',
+    },
+    details: {
+      en: 'A famous street market for second-hand electronics where bargain culture and repair culture are both alive.',
+      zh: '这里是著名的二手电子街市，讲价文化与维修文化并存，充满本地生活气息。',
+      hi: 'यहाँ सेकंड-हैंड इलेक्ट्रॉनिक्स का मशहूर बाजार है, जहाँ मोलभाव और रिपेयर संस्कृति दोनों जीवित हैं।',
+    },
+  },
+  'fuk-wing': {
+    name: {
+      en: 'Fuk Wing Street (Toy Street)',
+      zh: '福榮街（玩具街）',
+      hi: 'फुक विंग स्ट्रीट (टॉय स्ट्रीट)',
+    },
+    shortDescription: {
+      en: 'Hanging balloons, kites, and colorful toy chaos.',
+      zh: '满街气球、风筝与色彩缤纷的玩具。',
+      hi: 'लटकते गुब्बारे, पतंगें और रंग-बिरंगे खिलौनों की दुनिया।',
+    },
+    details: {
+      en: 'A nostalgic toy district where wholesale and retail stores preserve childhood memories across generations.',
+      zh: '充满怀旧气氛的玩具街，批发与零售店并存，承载几代人的童年回忆。',
+      hi: 'यह एक नॉस्टैल्जिक टॉय ज़ोन है, जहाँ थोक और खुदरा दुकानों में पीढ़ियों की यादें बसती हैं।',
+    },
+  },
+  'pei-ho': {
+    name: {
+      en: 'Pei Ho Street Wet Market',
+      zh: '北河街街市',
+      hi: 'पेई हो स्ट्रीट वेट मार्केट',
+    },
+    shortDescription: {
+      en: 'Food stalls, fish vendors, and loud morning bustle.',
+      zh: '食物摊档、鱼贩叫卖与早晨喧闹节奏。',
+      hi: 'खाने के स्टॉल, मछली विक्रेता और सुबह की चहल-पहल।',
+    },
+    details: {
+      en: 'A traditional wet market soundscape where daily food trade reflects everyday neighborhood life.',
+      zh: '传统街市的声音景观，展现深水埗日常买菜与社区生活的真实节奏。',
+      hi: 'यह पारंपरिक वेट मार्केट रोजमर्रा के भोजन व्यापार और स्थानीय जीवन की असली धड़कन दिखाता है।',
+    },
+  },
+  golden: {
+    name: {
+      en: 'Golden Computer Centre Entrance',
+      zh: '黃金電腦商場入口',
+      hi: 'गोल्डन कंप्यूटर सेंटर प्रवेश',
+    },
+    shortDescription: {
+      en: 'Neon glow, PC shops, keyboards, and arcade energy.',
+      zh: '霓虹灯光、电脑商店与电玩街机氛围。',
+      hi: 'निऑन रोशनी, पीसी शॉप्स, कीबोर्ड्स और आर्केड ऊर्जा।',
+    },
+    details: {
+      en: 'A landmark tech hub in Sham Shui Po known for gaming gear, PC parts, and fast-paced digital street culture.',
+      zh: '深水埗代表性的科技地标，以游戏设备、电脑零件与高密度电子文化闻名。',
+      hi: 'शाम शुई पो का प्रमुख टेक हब, जो गेमिंग गियर, पीसी पार्ट्स और तेज़ डिजिटल स्ट्रीट संस्कृति के लिए जाना जाता है।',
+    },
+  },
+}
 
 export function MapTour({ onBack }: MapTourProps) {
+  const { language } = useLanguage()
   const [activeId, setActiveId] = useState<string>(mapLocations[0].id)
   const [view, setView] = useState<'map' | 'location'>('map')
   const [loadedTiles, setLoadedTiles] = useState(0)
+
+  const mapCopy = {
+    en: {
+      title: 'Real Sham Shui Po map · Click a pin',
+      loading: 'Loading Sham Shui Po map...',
+      backHome: '← Back to Home',
+      dataAttribution: 'Map data © Lands Department, HKSAR',
+    },
+    zh: {
+      title: '真实深水埗地图 · 点击标记',
+      loading: '正在加载深水埗地图...',
+      backHome: '← 返回主页',
+      dataAttribution: '地图数据 © 香港地政总署',
+    },
+    hi: {
+      title: 'रियल शाम शुई पो मैप · पिन पर क्लिक करें',
+      loading: 'शाम शुई पो मैप लोड हो रहा है...',
+      backHome: '← होम पर वापस जाएं',
+      dataAttribution: 'मैप डेटा © Lands Department, HKSAR',
+    },
+  }[language]
 
   const activeLocation = useMemo<MapLocation>(
     () => mapLocations.find((location) => location.id === activeId) ?? mapLocations[0],
     [activeId],
   )
+  const getLocationName = (location: MapLocation) =>
+    (locationLocalized[location.id]?.name[language] ??
+      (language === 'zh' ? location.nameZh : location.nameEn))
 
   if (view === 'location') {
     return (
       <LocationPage
         location={activeLocation}
+        language={language}
         onBackToMap={() => setView('map')}
       />
     )
@@ -108,7 +214,7 @@ export function MapTour({ onBack }: MapTourProps) {
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45" />
 
           <div className="absolute left-4 top-4 z-10 rounded bg-black/50 px-3 py-2 text-xs tracking-wide text-slate-200">
-            Real Sham Shui Po map · Click a pin
+            {mapCopy.title}
           </div>
 
           {mapLocations.map((location) => {
@@ -132,7 +238,7 @@ export function MapTour({ onBack }: MapTourProps) {
                   }`}
                 />
                 <span className="mt-2 block rounded bg-black/70 px-2 py-1 text-[11px] text-slate-100">
-                  {location.nameEn}
+                  {getLocationName(location)}
                 </span>
               </button>
             )
@@ -144,12 +250,12 @@ export function MapTour({ onBack }: MapTourProps) {
             target="_blank"
             rel="noreferrer"
           >
-            Map data © Lands Department, HKSAR
+            {mapCopy.dataAttribution}
           </a>
 
           {loadedTiles === 0 && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 text-sm text-slate-200">
-              Loading Sham Shui Po map...
+              {mapCopy.loading}
             </div>
           )}
       </section>
@@ -158,7 +264,7 @@ export function MapTour({ onBack }: MapTourProps) {
         onClick={onBack}
         className="absolute left-4 top-4 z-30 cursor-pointer rounded-lg border border-white/20 bg-black/55 px-4 py-2 text-sm text-white backdrop-blur hover:bg-white/10"
       >
-        ← Back to Home
+        {mapCopy.backHome}
       </button>
     </div>
   )
@@ -166,47 +272,131 @@ export function MapTour({ onBack }: MapTourProps) {
 
 interface LocationPageProps {
   location: MapLocation
+  language: 'en' | 'zh' | 'hi'
   onBackToMap: () => void
 }
 
 function LocationPage({
   location,
+  language,
   onBackToMap,
 }: LocationPageProps) {
   const [masterVolume, setMasterVolume] = useState(0.8)
   const [muted, setMuted] = useState(false)
   const [activeSoundId, setActiveSoundId] = useState<string | null>(null)
+  const [infoOpenId, setInfoOpenId] = useState<string | null>(null)
+  const [hoveredInfoId, setHoveredInfoId] = useState<string | null>(null)
   const soundRefs = useRef<Record<string, HTMLAudioElement | null>>({})
+
+  const locationCopy = {
+    en: {
+      pageLabel: 'Location Page',
+      backToMap: '← Back to Map',
+      mute: 'Mute',
+      unmute: 'Unmute',
+      demoSounds: 'Demo Sounds',
+      clickToPlay: 'Click to play',
+      clickToStop: 'Playing - click to stop',
+      headphones: 'Headphones recommended for stronger immersion.',
+      infoLabel: (title: string) => `Show info for ${title}`,
+    },
+    zh: {
+      pageLabel: '地点页面',
+      backToMap: '← 返回地图',
+      mute: '静音',
+      unmute: '取消静音',
+      demoSounds: '示例声音',
+      clickToPlay: '点击播放',
+      clickToStop: '播放中 - 点击停止',
+      headphones: '建议佩戴耳机以获得更强沉浸感。',
+      infoLabel: (title: string) => `显示 ${title} 的说明`,
+    },
+    hi: {
+      pageLabel: 'लोकेशन पेज',
+      backToMap: '← मैप पर वापस जाएं',
+      mute: 'म्यूट',
+      unmute: 'अनम्यूट',
+      demoSounds: 'डेमो साउंड्स',
+      clickToPlay: 'चलाने के लिए क्लिक करें',
+      clickToStop: 'चल रहा है - रोकने के लिए क्लिक करें',
+      headphones: 'बेहतर इमर्शन के लिए हेडफ़ोन इस्तेमाल करें।',
+      infoLabel: (title: string) => `${title} की जानकारी दिखाएं`,
+    },
+  }[language]
+  const localizedLocation = locationLocalized[location.id]
+  const displayName = localizedLocation?.name[language] ?? (language === 'zh' ? location.nameZh : location.nameEn)
+  const displayShort = localizedLocation?.shortDescription[language] ?? location.shortDescription
+  const displayDetails = localizedLocation?.details[language] ?? location.detailsEn
 
   const demoSounds = [
     {
       id: 'crowd-chatter',
-      title: 'Street Crowd Chatter',
-      subtitle: 'Voices and movement',
+      title: {
+        en: 'Street Crowd Chatter',
+        zh: '街头人群交谈声',
+        hi: 'सड़क की भीड़भाड़ भरी बातचीत',
+      },
+      subtitle: {
+        en: 'This captures the dense social energy of Sham Shui Po sidewalks, where conversations overlap in Cantonese, Mandarin, and other dialects. The constant human texture is culturally important because street-level interaction is central to neighborhood life: buying, bargaining, greeting regulars, and exchanging local news all happen in this shared sonic space.',
+        zh: '这段声音呈现深水埗街道上密集的人际互动：粤语、普通话与多种口音交织在一起。它的文化意义在于，街头交流正是社区生活核心，买卖、讲价、寒暄与本地消息都在这片声音场中发生。',
+        hi: 'यह ध्वनि शाम शुई पो के फुटपाथों की सामाजिक ऊर्जा दिखाती है, जहाँ कैंटोनीज़, मंदारिन और अन्य बोलियाँ एक साथ सुनाई देती हैं। इसका सांस्कृतिक महत्व इसलिए है क्योंकि यहीं खरीदारी, मोलभाव, परिचय और स्थानीय खबरों का आदान-प्रदान होता है।',
+      },
       url: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
     },
     {
       id: 'vendor-calls',
-      title: 'Vendor Calls',
-      subtitle: 'Market selling voice',
+      title: {
+        en: 'Vendor Calls',
+        zh: '小贩叫卖声',
+        hi: 'विक्रेताओं की पुकार',
+      },
+      subtitle: {
+        en: 'Vendor calls are a signature of traditional Hong Kong market culture. In Sham Shui Po, these rhythmic announcements are not just sales tactics; they are part of the area’s identity, signaling what is fresh, cheap, or newly stocked. The voices create a living sound map that helps people navigate stalls and reinforces the district’s grassroots trading character.',
+        zh: '叫卖声是香港传统街市文化的标志。在深水埗，这些有节奏的吆喝不仅是销售方式，更是地区身份的一部分，告诉路人哪里有新货、平货、当季货，构成可被“听见”的市集地图。',
+        hi: 'विक्रेताओं की आवाज़ें पारंपरिक हांगकांग मार्केट संस्कृति की पहचान हैं। शाम शुई पो में यह केवल बिक्री का तरीका नहीं, बल्कि इलाके की पहचान है—क्या ताज़ा है, क्या सस्ता है, क्या नया आया है, सब ध्वनि से पता चलता है।',
+      },
       url: 'https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3',
     },
     {
       id: 'electronics-beeps',
-      title: 'Electronics Beeps',
-      subtitle: 'Arcade gadget sounds',
+      title: {
+        en: 'Electronics Beeps',
+        zh: '电子提示音',
+        hi: 'इलेक्ट्रॉनिक बीप्स',
+      },
+      subtitle: {
+        en: 'Electronic test tones, notification pings, and gadget beeps reflect Sham Shui Po’s reputation as a tech-hunting district, especially around Apliu Street and Golden Computer Centre. These sounds represent a culture of repair, resale, and experimentation, where old and new devices coexist and technology remains accessible to everyday people.',
+        zh: '电子测试声、提示音与设备蜂鸣声，体现了深水埗作为“科技淘宝区”的城市印象，尤其在鸭寮街与黄金商场一带。这些声音象征维修、转售与改装文化，让科技保持在大众可及范围内。',
+        hi: 'टेस्ट टोन, नोटिफिकेशन पिंग और गैजेट बीप्स शाम शुई पो की टेक-हंटिंग पहचान को दर्शाते हैं, खासकर अपलियू स्ट्रीट और गोल्डन कंप्यूटर सेंटर के आसपास। यह रिपेयर, रिसेल और एक्सपेरिमेंट की संस्कृति का प्रतीक है।',
+      },
       url: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
     },
     {
       id: 'footsteps',
-      title: 'Footsteps + Pavement',
-      subtitle: 'Busy walking rhythm',
+      title: {
+        en: 'Footsteps + Pavement',
+        zh: '脚步与路面声',
+        hi: 'कदमों और फुटपाथ की ध्वनि',
+      },
+      subtitle: {
+        en: 'The steady rhythm of footsteps on crowded pavement reflects the district’s high pedestrian flow and layered street economy. In Sham Shui Po, people move quickly between MTR exits, curbside stalls, markets, and side streets. This movement sound is culturally meaningful because it conveys how the neighborhood functions as a lived, walkable ecosystem rather than a static tourist site.',
+        zh: '密集脚步声反映了深水埗高人流与分层街道经济。人们在地铁口、街边摊、市场与横街之间快速穿梭。这种“移动的声音”体现了社区是可步行、可生活的真实生态，而非静态观光景点。',
+        hi: 'भीड़भरे फुटपाथ पर कदमों की स्थिर लय इस इलाके के तेज़ पैदल प्रवाह और परतदार स्ट्रीट इकॉनमी को दर्शाती है। एमटीआर निकास, स्टॉल और गलियों के बीच लगातार आवाजाही इस पड़ोस को एक जीवंत, वॉकएबल इकोसिस्टम बनाती है।',
+      },
       url: 'https://cdn.freesound.org/previews/250/250200_4486188-lq.mp3',
     },
     {
       id: 'cantonese-radio',
-      title: 'Cantonese Radio Texture',
-      subtitle: 'Shopfront broadcast vibe',
+      title: {
+        en: 'Cantonese Radio Texture',
+        zh: '粤语电台氛围',
+        hi: 'कैंटोनीज़ रेडियो माहौल',
+      },
+      subtitle: {
+        en: 'Cantonese radio drifting from shopfronts is a familiar auditory backdrop across older Kowloon districts. In Sham Shui Po, it ties together generations through shared pop songs, talk programs, and local language cadence. The sound is culturally important because it preserves everyday linguistic identity and gives the street a distinctly Hong Kong sense of place.',
+        zh: '店铺传出的粤语电台，是九龙旧区常见背景声。在深水埗，它透过流行歌、清谈节目与语调节奏连接不同世代。这种声音保留了日常语言身份，也让街道拥有鲜明的香港在地感。',
+        hi: 'दुकानों से आती कैंटोनीज़ रेडियो आवाज़ पुराने कौलून इलाकों की पहचान है। शाम शुई पो में यह गानों, टॉक शो और स्थानीय लहजे के माध्यम से पीढ़ियों को जोड़ती है। यह ध्वनि स्थानीय भाषाई पहचान और जगह की अनुभूति को बनाए रखती है।',
+      },
       url: 'https://cdn.freesound.org/previews/354/354563_4748617-lq.mp3',
     },
   ]
@@ -263,15 +453,15 @@ function LocationPage({
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs tracking-widest text-slate-400 uppercase">Location Page</p>
-            <h2 className="text-2xl font-semibold text-white">{location.nameEn}</h2>
+            <p className="text-xs tracking-widest text-slate-400 uppercase">{locationCopy.pageLabel}</p>
+            <h2 className="text-2xl font-semibold text-white">{displayName}</h2>
             <p className="text-sm text-slate-300">{location.nameZh}</p>
           </div>
           <button
             onClick={onBackToMap}
             className="cursor-pointer rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/10"
           >
-            ← Back to Map
+            {locationCopy.backToMap}
           </button>
         </div>
 
@@ -296,7 +486,7 @@ function LocationPage({
           ) : (
             <img
               src={location.liveViewUrl}
-              alt={location.nameEn}
+                alt={displayName}
               className="h-full min-h-[380px] w-full object-cover"
             />
           )}
@@ -305,15 +495,15 @@ function LocationPage({
         <div className="w-full py-2">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-slate-300">{location.shortDescription}</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-400">{location.detailsEn}</p>
+              <p className="text-sm text-slate-300">{displayShort}</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-400">{displayDetails}</p>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2">
               <button
                 onClick={() => setMuted((m) => !m)}
                 className="cursor-pointer rounded border border-white/20 px-3 py-1 text-xs text-white hover:bg-white/10"
               >
-                {muted ? 'Unmute' : 'Mute'}
+                {muted ? locationCopy.unmute : locationCopy.mute}
               </button>
               <input
                 type="range"
@@ -328,54 +518,74 @@ function LocationPage({
           </div>
 
           <h3 className="mb-3 text-sm font-semibold tracking-wider text-neon-green uppercase">
-            Demo Sounds
+            {locationCopy.demoSounds}
           </h3>
 
           <div className="flex flex-col gap-3">
             {demoSounds.map((sound) => {
               const isActive = activeSoundId === sound.id
+              const showInfo = infoOpenId === sound.id || hoveredInfoId === sound.id
               return (
-                <button
-                  key={sound.id}
-                  onClick={() => void handleToggleSound(sound.id)}
-                  className={`group cursor-pointer rounded-lg border p-3 text-left transition ${
-                    isActive
-                      ? 'border-neon-green bg-neon-green/10 shadow-[0_0_16px_rgba(60,255,143,0.25)]'
-                      : 'border-white/10 bg-black/20 hover:border-white/30'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span
-                      className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs ${
-                        isActive
-                          ? 'border-neon-green text-neon-green bg-neon-green/10'
-                          : 'border-white/25 text-slate-200 bg-white/5'
-                      }`}
-                      aria-hidden="true"
-                    >
-                      {isActive ? '■' : '▶'}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-white">{sound.title}</p>
-                      <p className="mt-1 text-xs text-slate-400">{sound.subtitle}</p>
+                <div key={sound.id} className="relative">
+                  <button
+                    onClick={() => void handleToggleSound(sound.id)}
+                    className={`group w-full cursor-pointer rounded-lg border p-3 pr-12 text-left transition ${
+                      isActive
+                        ? 'border-neon-green bg-neon-green/10 shadow-[0_0_16px_rgba(60,255,143,0.25)]'
+                        : 'border-white/10 bg-black/20 hover:border-white/30'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span
+                        className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs ${
+                          isActive
+                            ? 'border-neon-green text-neon-green bg-neon-green/10'
+                            : 'border-white/25 text-slate-200 bg-white/5'
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {isActive ? '■' : '▶'}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white">{sound.title[language]}</p>
+                      </div>
                     </div>
-                  </div>
-                  <p className="mt-2 text-xs font-semibold text-neon-yellow">
-                    {isActive ? 'Playing - click to stop' : 'Click to play'}
-                  </p>
-                  <audio
-                    ref={(el) => {
-                      soundRefs.current[sound.id] = el
-                    }}
-                    src={sound.url}
-                    loop
-                    preload="none"
-                  />
-                </button>
+                    <p className="mt-2 text-xs font-semibold text-neon-yellow">
+                      {isActive ? locationCopy.clickToStop : locationCopy.clickToPlay}
+                    </p>
+                    <audio
+                      ref={(el) => {
+                        soundRefs.current[sound.id] = el
+                      }}
+                      src={sound.url}
+                      loop
+                      preload="none"
+                    />
+                  </button>
+
+                  <button
+                    onMouseEnter={() => setHoveredInfoId(sound.id)}
+                    onMouseLeave={() => setHoveredInfoId((current) => (current === sound.id ? null : current))}
+                    onClick={() =>
+                      setInfoOpenId((current) => (current === sound.id ? null : sound.id))
+                    }
+                    className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-black/40 text-[11px] text-slate-200 hover:bg-black/70"
+                    aria-label={locationCopy.infoLabel(sound.title[language])}
+                    type="button"
+                  >
+                    i
+                  </button>
+
+                  {showInfo && (
+                    <div className="absolute right-0 top-full z-20 mt-2 w-72 rounded-lg border border-white/15 bg-[#0b101a]/95 p-3 text-xs leading-relaxed text-slate-200 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur">
+                      {sound.subtitle[language]}
+                    </div>
+                  )}
+                </div>
               )
             })}
           </div>
-          <p className="mt-3 text-xs text-slate-400">Headphones recommended for stronger immersion.</p>
+          <p className="mt-3 text-xs text-slate-400">{locationCopy.headphones}</p>
         </div>
       </div>
     </div>
