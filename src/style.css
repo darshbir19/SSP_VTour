@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root,
+#app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: #050308;
+  color: #f9fafb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.neon-title {
+  text-shadow:
+    0 0 14px rgba(255, 51, 85, 0.9),
+    0 0 26px rgba(60, 255, 143, 0.8);
+}
+
+.mtr-loading-line {
+  position: relative;
+  width: 180px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #ff3355, #ffd54a, #3cff8f);
+  overflow: hidden;
+}
+
+.mtr-loading-dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow:
+    0 0 12px rgba(255, 255, 255, 0.9),
+    0 0 24px rgba(255, 51, 85, 0.8);
+  transform: translate(-50%, -50%);
+  animation: mtr-dot 1.4s infinite ease-in-out;
+}
+
+@keyframes mtr-dot {
+  0% {
+    left: 0%;
+  }
+  50% {
+    left: 50%;
+  }
+  100% {
+    left: 100%;
+  }
+}
