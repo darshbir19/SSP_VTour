@@ -78,9 +78,8 @@ export function MapTour({ onBack }: MapTourProps) {
   }
 
   return (
-    <div className="h-full w-full bg-[#07080f] px-4 py-4 sm:px-6 sm:py-6">
-      <div className="mx-auto flex h-full max-w-7xl flex-col gap-4 lg:flex-row">
-        <section className="relative min-h-[380px] flex-1 overflow-hidden rounded-xl border border-white/10 bg-[#101421]">
+    <div className="relative h-full w-full overflow-hidden bg-[#07080f]">
+      <section className="absolute inset-0 overflow-hidden bg-[#101421]">
           <div
             className="absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2"
             style={{
@@ -153,25 +152,14 @@ export function MapTour({ onBack }: MapTourProps) {
               Loading Sham Shui Po map...
             </div>
           )}
-        </section>
+      </section>
 
-        <aside className="flex w-full flex-col gap-3 rounded-xl border border-white/10 bg-[#121621] p-4 lg:w-[420px]">
-          <h2 className="text-xl font-semibold text-white">Select a Street Point</h2>
-          <p className="text-sm text-slate-300">
-            Click any of the 4 map pointers to open a dedicated location page with its live view and
-            soundscape.
-          </p>
-          <div className="mt-2 rounded-md border border-white/10 bg-black/20 p-3 text-sm text-slate-300">
-            Current selection: <span className="text-white">{activeLocation.nameEn}</span>
-          </div>
-          <button
-            onClick={onBack}
-            className="mt-auto cursor-pointer rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/10"
-          >
-            Back to Home
-          </button>
-        </aside>
-      </div>
+      <button
+        onClick={onBack}
+        className="absolute left-4 top-4 z-30 cursor-pointer rounded-lg border border-white/20 bg-black/55 px-4 py-2 text-sm text-white backdrop-blur hover:bg-white/10"
+      >
+        ← Back to Home
+      </button>
     </div>
   )
 }
