@@ -9,9 +9,9 @@ interface MapTourProps {
 }
 
 const TILE_SIZE = 256
-const TILE_GRID = 5
-const TILE_ZOOM = 17
-const SSP_CENTER = { lat: 22.3308, lon: 114.1622 }
+const TILE_GRID = 4
+const TILE_ZOOM = 18
+const SSP_CENTER = { lat: 22.3312, lon: 114.1634 }
 const HK_IMAGERY_TILE_URL =
   'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/WGS84/{z}/{x}/{y}.png'
 
@@ -64,6 +64,7 @@ const locationLocalized: Record<
   string,
   {
     name: LocalizedText
+    summary: LocalizedText
     shortDescription: LocalizedText
     details: LocalizedText
   }
@@ -73,6 +74,11 @@ const locationLocalized: Record<
       en: 'Apliu Street Electronics Market',
       zh: '鴨寮街電子市場',
       hi: 'अपलियू स्ट्रीट इलेक्ट्रॉनिक्स मार्केट',
+    },
+    summary: {
+      en: 'Apliu Street - A legendary electronics market known for bargains and repair culture.',
+      zh: '鴨寮街——以講價與維修文化聞名的傳奇電子市場。',
+      hi: 'अपलियू स्ट्रीट - मोलभाव और रिपेयर संस्कृति के लिए प्रसिद्ध इलेक्ट्रॉनिक्स मार्केट।',
     },
     shortDescription: {
       en: 'Vintage gadgets, cables, and busy bargaining stalls.',
@@ -91,6 +97,11 @@ const locationLocalized: Record<
       zh: '福榮街（玩具街）',
       hi: 'फुक विंग स्ट्रीट (टॉय स्ट्रीट)',
     },
+    summary: {
+      en: 'Fuk Wing Street - A nostalgic toy district full of color and childhood memory.',
+      zh: '福榮街——充滿色彩與童年回憶的懷舊玩具街。',
+      hi: 'फुक विंग स्ट्रीट - रंगों और यादों से भरा नॉस्टैल्जिक टॉय ज़ोन।',
+    },
     shortDescription: {
       en: 'Hanging balloons, kites, and colorful toy chaos.',
       zh: '满街气球、风筝与色彩缤纷的玩具。',
@@ -107,6 +118,11 @@ const locationLocalized: Record<
       en: 'Pei Ho Street Wet Market',
       zh: '北河街街市',
       hi: 'पेई हो स्ट्रीट वेट मार्केट',
+    },
+    summary: {
+      en: 'Pei Ho Street - A traditional wet market pulse of daily neighborhood life.',
+      zh: '北河街——展現日常社區節奏的傳統街市。',
+      hi: 'पेई हो स्ट्रीट - रोजमर्रा की स्थानीय ज़िंदगी का पारंपरिक वेट मार्केट केंद्र।',
     },
     shortDescription: {
       en: 'Food stalls, fish vendors, and loud morning bustle.',
@@ -125,15 +141,20 @@ const locationLocalized: Record<
       zh: '黃金電腦商場入口',
       hi: 'गोल्डन कंप्यूटर सेंटर प्रवेश',
     },
+    summary: {
+      en: 'Golden Computer Arcade - A dense hub for affordable electronics and gaming culture.',
+      zh: '黃金電腦商場——平價電子產品與遊戲文化的高密度熱點。',
+      hi: 'गोल्डन कंप्यूटर आर्केड - किफायती इलेक्ट्रॉनिक्स और गेमिंग संस्कृति का घना केंद्र।',
+    },
     shortDescription: {
-      en: 'Neon glow, PC shops, keyboards, and arcade energy.',
-      zh: '霓虹灯光、电脑商店与电玩街机氛围。',
-      hi: 'निऑन रोशनी, पीसी शॉप्स, कीबोर्ड्स और आर्केड ऊर्जा।',
+      en: '',
+      zh: '',
+      hi: '',
     },
     details: {
-      en: 'A landmark tech hub in Sham Shui Po known for gaming gear, PC parts, and fast-paced digital street culture.',
-      zh: '深水埗代表性的科技地标，以游戏设备、电脑零件与高密度电子文化闻名。',
-      hi: 'शाम शुई पो का प्रमुख टेक हब, जो गेमिंग गियर, पीसी पार्ट्स और तेज़ डिजिटल स्ट्रीट संस्कृति के लिए जाना जाता है।',
+      en: 'Golden Computer Arcade is a popular tech marketplace in Sham Shui Po, Hong Kong, known for its wide range of affordable electronics, computer hardware, gaming gear, and accessories. Packed with small independent shops, it’s a go-to destination for tech enthusiasts looking for great deals and the latest gadgets.',
+      zh: '深水埗黃金電腦商場是香港著名科技市集，提供大量價格實惠的電子產品、電腦硬件、遊戲設備與配件。商場內聚集許多小型獨立店舖，是科技愛好者尋找優惠與最新產品的熱門地點。',
+      hi: 'गोल्डन कंप्यूटर आर्केड, शाम शुई पो (हांगकांग) का एक लोकप्रिय टेक बाज़ार है, जो किफायती इलेक्ट्रॉनिक्स, कंप्यूटर हार्डवेयर, गेमिंग गियर और एक्सेसरीज़ की बड़ी रेंज के लिए जाना जाता है। छोटी-छोटी स्वतंत्र दुकानों से भरा यह स्थान अच्छे सौदों और नए गैजेट्स की तलाश करने वालों के लिए पसंदीदा जगह है।',
     },
   },
 }
@@ -184,17 +205,9 @@ export function MapTour({ onBack }: MapTourProps) {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-[#07080f]">
+    <div className="fade-in relative h-full w-full overflow-hidden bg-[#07080f]">
       <section className="absolute inset-0 overflow-hidden bg-[#101421]">
-          <div
-            className="absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2"
-            style={{
-              gridTemplateColumns: `repeat(${TILE_GRID}, ${TILE_SIZE}px)`,
-              gridTemplateRows: `repeat(${TILE_GRID}, ${TILE_SIZE}px)`,
-              width: TILE_GRID * TILE_SIZE,
-              height: TILE_GRID * TILE_SIZE,
-            }}
-          >
+          <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${TILE_GRID}, 1fr)`, gridTemplateRows: `repeat(${TILE_GRID}, 1fr)` }}>
             {shamShuiPoTiles.map((tile) => (
               <img
                 key={tile.key}
@@ -202,7 +215,7 @@ export function MapTour({ onBack }: MapTourProps) {
                 alt=""
                 loading="eager"
                 onLoad={() => setLoadedTiles((n) => n + 1)}
-                className="h-64 w-64"
+                className="h-full w-full object-cover"
                 style={{
                   gridColumnStart: tile.x + 1,
                   gridRowStart: tile.y + 1,
@@ -213,10 +226,6 @@ export function MapTour({ onBack }: MapTourProps) {
           </div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45" />
 
-          <div className="absolute left-4 top-4 z-10 rounded bg-black/50 px-3 py-2 text-xs tracking-wide text-slate-200">
-            {mapCopy.title}
-          </div>
-
           {mapLocations.map((location) => {
             const active = activeId === location.id
             return (
@@ -226,19 +235,35 @@ export function MapTour({ onBack }: MapTourProps) {
                   setActiveId(location.id)
                   setView('location')
                 }}
-                className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center min-h-[44px] min-w-[44px]"
                 style={{ left: `${location.xPercent}%`, top: `${location.yPercent}%` }}
                 aria-label={location.nameEn}
               >
-                <span
-                  className={`block h-4 w-4 rounded-full border border-white/80 transition-all ${
+                <span className={`absolute inline-flex h-7 w-7 rounded-full bg-red-500/20 blur-sm transition-opacity ${
+                  active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`} />
+                <svg
+                  viewBox="0 0 24 24"
+                  className={`h-8 w-8 drop-shadow-[0_0_10px_rgba(0,0,0,0.55)] transition-all ${
                     active
-                      ? 'bg-neon-green shadow-[0_0_16px_rgba(60,255,143,0.9)]'
-                      : 'bg-neon-red shadow-[0_0_12px_rgba(255,51,85,0.7)]'
+                      ? 'scale-110 drop-shadow-[0_0_14px_rgba(255,51,85,0.35)]'
+                      : 'group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(255,51,85,0.3)]'
                   }`}
-                />
-                <span className="mt-2 block rounded bg-black/70 px-2 py-1 text-[11px] text-slate-100">
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 2C7.58 2 4 5.58 4 10c0 5.33 6.22 11.49 7.08 12.32a1.3 1.3 0 0 0 1.84 0C13.78 21.49 20 15.33 20 10c0-4.42-3.58-8-8-8z"
+                    fill="#ff3355"
+                  />
+                  <circle cx="12" cy="10" r="3" fill="#ffffff" />
+                </svg>
+                <span className={`pointer-events-none mt-2 block rounded-xl bg-black/65 px-2 py-1 text-[11px] text-slate-100 transition-opacity ${
+                  active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                }`}>
                   {getLocationName(location)}
+                </span>
+                <span className="pointer-events-none absolute left-1/2 top-9 -translate-x-1/2 rounded-md bg-black/75 px-2 py-1 text-[10px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">
+                  Click to explore
                 </span>
               </button>
             )
@@ -262,7 +287,7 @@ export function MapTour({ onBack }: MapTourProps) {
 
       <button
         onClick={onBack}
-        className="absolute left-4 top-4 z-30 cursor-pointer rounded-lg border border-white/20 bg-black/55 px-4 py-2 text-sm text-white backdrop-blur hover:bg-white/10"
+        className="btn-secondary absolute left-4 top-4 z-30 cursor-pointer text-sm backdrop-blur"
       >
         {mapCopy.backHome}
       </button>
@@ -294,7 +319,7 @@ function LocationPage({
       backToMap: '← Back to Map',
       mute: 'Mute',
       unmute: 'Unmute',
-      demoSounds: 'Demo Sounds',
+      demoSounds: 'Explore local soundscape',
       clickToPlay: 'Click to play',
       clickToStop: 'Playing - click to stop',
       headphones: 'Headphones recommended for stronger immersion.',
@@ -305,7 +330,7 @@ function LocationPage({
       backToMap: '← 返回地图',
       mute: '静音',
       unmute: '取消静音',
-      demoSounds: '示例声音',
+      demoSounds: '探索在地声音景观',
       clickToPlay: '点击播放',
       clickToStop: '播放中 - 点击停止',
       headphones: '建议佩戴耳机以获得更强沉浸感。',
@@ -316,7 +341,7 @@ function LocationPage({
       backToMap: '← मैप पर वापस जाएं',
       mute: 'म्यूट',
       unmute: 'अनम्यूट',
-      demoSounds: 'डेमो साउंड्स',
+      demoSounds: 'स्थानीय साउंडस्केप एक्सप्लोर करें',
       clickToPlay: 'चलाने के लिए क्लिक करें',
       clickToStop: 'चल रहा है - रोकने के लिए क्लिक करें',
       headphones: 'बेहतर इमर्शन के लिए हेडफ़ोन इस्तेमाल करें।',
@@ -325,7 +350,7 @@ function LocationPage({
   }[language]
   const localizedLocation = locationLocalized[location.id]
   const displayName = localizedLocation?.name[language] ?? (language === 'zh' ? location.nameZh : location.nameEn)
-  const displayShort = localizedLocation?.shortDescription[language] ?? location.shortDescription
+  const displaySummary = localizedLocation?.summary[language] ?? location.summary
   const displayDetails = localizedLocation?.details[language] ?? location.detailsEn
 
   const demoSounds = [
@@ -449,24 +474,34 @@ function LocationPage({
   }
 
   return (
-    <div className="h-full w-full overflow-auto bg-[#06080f] px-4 py-5 sm:px-8">
+    <div className="fade-in h-full w-full overflow-auto bg-[#06080f] px-4 py-5 sm:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs tracking-widest text-slate-400 uppercase">{locationCopy.pageLabel}</p>
             <h2 className="text-2xl font-semibold text-white">{displayName}</h2>
-            <p className="text-sm text-slate-300">{location.nameZh}</p>
+            <p className="break-words text-sm text-slate-300">{displaySummary}</p>
           </div>
           <button
             onClick={onBackToMap}
-            className="cursor-pointer rounded-lg border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/10"
+            className="btn-secondary cursor-pointer text-sm"
           >
             {locationCopy.backToMap}
           </button>
         </div>
 
         <div className="w-full overflow-hidden rounded-lg bg-black">
-          {location.streetView ? (
+          {location.liveViewType === 'embed' ? (
+            <iframe
+              src={location.liveViewUrl}
+              title={displayName}
+              className="h-full min-h-[380px] w-full"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          ) : location.streetView ? (
             <GoogleStreetView
               lat={location.streetView.lat}
               lng={location.streetView.lng}
@@ -495,13 +530,18 @@ function LocationPage({
         <div className="w-full py-2">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-slate-300">{displayShort}</p>
-              <p className="mt-1 text-sm leading-relaxed text-slate-400">{displayDetails}</p>
+              <p
+                className={`mt-1 break-words leading-relaxed text-slate-300 ${
+                  location.id === 'golden' ? 'text-sm sm:text-[0.95rem]' : 'text-sm sm:text-base'
+                }`}
+              >
+                {displayDetails}
+              </p>
             </div>
             <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2">
               <button
                 onClick={() => setMuted((m) => !m)}
-                className="cursor-pointer rounded border border-white/20 px-3 py-1 text-xs text-white hover:bg-white/10"
+                className="btn-secondary cursor-pointer px-3 py-1 text-xs"
               >
                 {muted ? locationCopy.unmute : locationCopy.mute}
               </button>
@@ -551,7 +591,7 @@ function LocationPage({
                       </div>
                     </div>
                     <p className="mt-2 text-xs font-semibold text-neon-yellow">
-                      {isActive ? locationCopy.clickToStop : locationCopy.clickToPlay}
+                      {isActive ? `⏸ ${locationCopy.clickToStop}` : `▶ ${locationCopy.clickToPlay}`}
                     </p>
                     <audio
                       ref={(el) => {
@@ -569,7 +609,7 @@ function LocationPage({
                     onClick={() =>
                       setInfoOpenId((current) => (current === sound.id ? null : sound.id))
                     }
-                    className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-black/40 text-[11px] text-slate-200 hover:bg-black/70"
+                    className="absolute right-3 top-3 inline-flex min-h-[32px] min-w-[32px] items-center justify-center rounded-full border border-white/20 bg-black/40 px-2 text-[11px] text-slate-200 hover:bg-black/70"
                     aria-label={locationCopy.infoLabel(sound.title[language])}
                     type="button"
                   >
@@ -577,7 +617,7 @@ function LocationPage({
                   </button>
 
                   {showInfo && (
-                    <div className="absolute right-0 top-full z-20 mt-2 w-72 rounded-lg border border-white/15 bg-[#0b101a]/95 p-3 text-xs leading-relaxed text-slate-200 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur">
+                    <div className="absolute right-0 top-full z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/15 bg-[#0b101a]/95 p-4 text-sm leading-7 text-slate-100 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur">
                       {sound.subtitle[language]}
                     </div>
                   )}
