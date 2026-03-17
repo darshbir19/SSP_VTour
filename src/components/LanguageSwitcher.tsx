@@ -12,7 +12,7 @@ export function LanguageSwitcher() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="pointer-events-auto fixed right-5 top-4 z-[100] sm:right-6 sm:top-5">
+    <div className="pointer-events-auto relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

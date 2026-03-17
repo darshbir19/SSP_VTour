@@ -1,23 +1,33 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import { HomePage } from './components/HomePage'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { MapTour } from './components/MapTour'
 import { LanguageProvider } from './context/LanguageContext'
 
-type ViewMode = 'home' | 'map'
-
 export function App() {
-  const [view, setView] = useState<ViewMode>('home')
+  const homeSectionRef = useRef<HTMLElement | null>(null)
+  const mapSectionRef = useRef<HTMLElement | null>(null)
 
   return (
     <LanguageProvider>
-      <div className="relative h-screen w-screen overflow-hidden bg-ssp-bg text-slate-100">
-        <LanguageSwitcher />
-        {view === 'home' ? (
-          <HomePage onStart={() => setView('map')} />
-        ) : (
-          <MapTour onBack={() => setView('home')} />
-        )}
+      <div className="relative h-screen w-screen snap-y snap-mandatory overflow-y-auto bg-ssp-bg text-slate-100 scroll-smooth">
+        <div className="pointer-events-auto fixed right-5 top-4 z-[100] flex items-center gap-2 sm:right-6 sm:top-5">
+          <a
+            href="https://docs.google.com/forms/d/1rjHiUY27ZrwFb02XWUk8EKTwtPh2dtq4nC7ky3tZW8Q/edit"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:text-sm"
+          >
+            Contibute
+          </a>
+          <LanguageSwitcher />
+        </div>
+        <section ref={homeSectionRef} className="h-screen w-full snap-start">
+          <HomePage onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+        </section>
+        <section ref={mapSectionRef} className="h-screen w-full snap-start">
+          <MapTour onBack={() => homeSectionRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+        </section>
       </div>
     </LanguageProvider>
   )
