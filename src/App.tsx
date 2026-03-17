@@ -11,7 +11,7 @@ export function App() {
 
   return (
     <LanguageProvider>
-      <div className="relative h-screen w-screen bg-ssp-bg text-slate-100">
+      <div className="relative h-screen w-screen overflow-hidden bg-ssp-bg text-slate-100">
         <LanguageSwitcher />
         {view === 'home' ? (
           <HomePage onStart={() => setView('map')} />
