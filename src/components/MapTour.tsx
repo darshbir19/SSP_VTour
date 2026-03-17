@@ -169,19 +169,19 @@ export function MapTour({ onBack }: MapTourProps) {
     en: {
       title: 'Real Sham Shui Po map · Click a pin',
       loading: 'Loading Sham Shui Po map...',
-      backHome: '← Back to Home',
+      backHome: 'Back to Home',
       dataAttribution: 'Map data © Lands Department, HKSAR',
     },
     zh: {
       title: '真实深水埗地图 · 点击标记',
       loading: '正在加载深水埗地图...',
-      backHome: '← 返回主页',
+      backHome: '返回主页',
       dataAttribution: '地图数据 © 香港地政总署',
     },
     hi: {
       title: 'रियल शाम शुई पो मैप · पिन पर क्लिक करें',
       loading: 'शाम शुई पो मैप लोड हो रहा है...',
-      backHome: '← होम पर वापस जाएं',
+      backHome: 'होम पर वापस जाएं',
       dataAttribution: 'मैप डेटा © Lands Department, HKSAR',
     },
   }[language]
@@ -287,8 +287,14 @@ export function MapTour({ onBack }: MapTourProps) {
 
       <button
         onClick={onBack}
-        className="btn-secondary absolute left-4 top-4 z-30 cursor-pointer text-sm backdrop-blur"
+        className="absolute left-4 top-4 z-30 inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-sm text-white backdrop-blur hover:bg-black/75"
       >
+        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+          <path
+            d="M12 3 3 10h2v10h5v-6h4v6h5V10h2L12 3z"
+            fill="currentColor"
+          />
+        </svg>
         {mapCopy.backHome}
       </button>
     </div>
