@@ -8,21 +8,25 @@ export function HomePage({ onStart }: HomePageProps) {
   const { language } = useLanguage()
   const copy = {
     en: {
-      subtitle: 'Sham Shui Po Sensory Tour',
-      description:
-        'Start simple: open a 2D district map, click a location pin, and hear a location-based soundscape while viewing that street.',
-      cta: 'Open 2D Map Experience',
+      subtitle: 'Sham Shui Po Virtual Tour',
+      description: 'More than a map—feel the vibe of Sham Shui Po.',
+      guide: 'Explore the neighborhood through interactive locations, sounds, and stories.',
+      cta: 'Experience Sham Shui Po',
+      contribute: 'Contribute Your SSP Experience',
     },
     zh: {
-      subtitle: '深水埗感官之旅',
-      description: '从简单开始：打开二维地图，点击地点标记，在观看街景时聆听该地点的声音景观。',
-      cta: '打开二维地图体验',
+      subtitle: '深水埗虚拟导览',
+      description: '不只是地图——感受深水埗的独特氛围。',
+      guide: '通过互动地点、声音与故事探索这个社区。',
+      cta: '体验深水埗',
+      contribute: '提交你的深水埗体验',
     },
     hi: {
-      subtitle: 'शाम शुई पो सेंसरी टूर',
-      description:
-        'सरल शुरुआत करें: 2D जिला मानचित्र खोलें, किसी लोकेशन पिन पर क्लिक करें, और उस सड़क को देखते हुए उसी जगह की साउंडस्केप सुनें।',
-      cta: '2D मैप अनुभव खोलें',
+      subtitle: 'शाम शुई पो वर्चुअल टूर',
+      description: 'यह सिर्फ नक्शा नहीं—शाम शुई पो की असली वाइब महसूस करें।',
+      guide: 'इंटरैक्टिव लोकेशन, ध्वनियों और कहानियों के जरिए इलाके को एक्सप्लोर करें।',
+      cta: 'शाम शुई पो का अनुभव करें',
+      contribute: 'अपना SSP अनुभव साझा करें',
     },
   }[language]
 
@@ -32,25 +36,34 @@ export function HomePage({ onStart }: HomePageProps) {
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage:
-            'url(https://images.unsplash.com/photo-1536599018102-9f803c979981?w=1920&q=80)',
+            'url(/images/Pei-Ho-Street_Wet-Market.jpg)',
+          filter: 'blur(7px) brightness(0.6)',
+          transform: 'scale(1.06)',
         }}
       />
-      <div className="absolute inset-0 bg-black/65" />
+      <div className="absolute inset-0 bg-black/30" />
 
-      <div className="relative z-10 flex max-w-2xl flex-col items-center gap-5 px-6 text-center">
-        <h1 className="neon-title font-neon text-3xl font-bold tracking-wide text-white sm:text-5xl">
-          FeelSSP
-        </h1>
-        <p className="text-lg text-slate-200">{copy.subtitle}</p>
-        <p className="max-w-lg text-sm text-slate-300 sm:text-base">
+      <div className="fade-in relative z-10 flex w-[min(92vw,980px)] flex-col items-center gap-4 px-6 text-center">
+        <h1 className="w-full text-4xl font-semibold tracking-wide text-white sm:text-6xl lg:text-7xl">{copy.subtitle}</h1>
+        <p className="w-full text-base font-medium text-slate-100 sm:text-lg">
           {copy.description}
         </p>
-        <button
-          onClick={onStart}
-          className="shadow-neon-red hover:shadow-neon-green mt-2 cursor-pointer rounded-lg border border-neon-red/70 bg-neon-red/20 px-8 py-3 font-semibold text-white transition-all hover:border-neon-green/70 hover:bg-neon-green/20"
-        >
+        <p className="max-w-2xl text-sm text-slate-300 sm:text-base">{copy.guide}</p>
+        <button onClick={onStart} className="btn-primary mt-2 cursor-pointer px-8">
           {copy.cta}
         </button>
+        <a
+          href="https://docs.google.com/forms/d/1rjHiUY27ZrwFb02XWUk8EKTwtPh2dtq4nC7ky3tZW8Q/edit"
+          target="_blank"
+          rel="noreferrer"
+          className="btn-secondary mt-1 inline-flex cursor-pointer items-center justify-center px-6 text-sm"
+        >
+          {copy.contribute}
+        </a>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce text-xs tracking-wider text-white/80">
+        Scroll to explore
       </div>
     </div>
   )
