@@ -16,12 +16,12 @@ export function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="group inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-2 text-sm text-white backdrop-blur hover:bg-black/75"
+        className="group inline-flex h-10 min-w-10 max-w-[45vw] items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-2 text-sm text-white backdrop-blur hover:bg-black/75"
         aria-label="Language"
         title="Language"
       >
         🌐
-        <span className="hidden text-xs sm:inline">
+        <span className="truncate text-xs">
           {languageOptions.find((o) => o.id === language)?.label}
         </span>
         <span className="pointer-events-none absolute -bottom-8 right-0 rounded bg-black/70 px-2 py-1 text-[11px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">

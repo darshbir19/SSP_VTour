@@ -11,12 +11,12 @@ export function App() {
   return (
     <LanguageProvider>
       <div className="relative h-screen w-screen snap-y snap-mandatory overflow-y-auto bg-ssp-bg text-slate-100 scroll-smooth">
-        <div className="pointer-events-auto fixed right-5 top-4 z-[100] flex items-center gap-2 sm:right-6 sm:top-5">
+        <div className="pointer-events-auto fixed left-3 right-3 top-3 z-[100] flex items-center justify-end gap-2 sm:left-auto sm:right-6 sm:top-5">
           <a
             href="https://docs.google.com/forms/d/1rjHiUY27ZrwFb02XWUk8EKTwtPh2dtq4nC7ky3tZW8Q/edit"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:text-sm"
+            className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:min-w-10 sm:text-sm"
           >
             Contibute
           </a>
