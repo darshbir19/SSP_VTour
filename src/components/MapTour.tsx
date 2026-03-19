@@ -287,7 +287,7 @@ export function MapTour({ onBack }: MapTourProps) {
 
       <button
         onClick={onBack}
-        className="absolute left-4 top-4 z-30 inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-sm text-white backdrop-blur hover:bg-black/75"
+        className="absolute left-3 top-3 z-30 inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:left-4 sm:top-4 sm:text-sm"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
           <path
@@ -295,7 +295,7 @@ export function MapTour({ onBack }: MapTourProps) {
             fill="currentColor"
           />
         </svg>
-        {mapCopy.backHome}
+        <span className="hidden sm:inline">{mapCopy.backHome}</span>
       </button>
     </div>
   )
@@ -480,17 +480,17 @@ function LocationPage({
   }
 
   return (
-    <div className="fade-in h-full w-full overflow-auto bg-[#06080f] px-4 py-5 sm:px-8">
+    <div className="fade-in h-full w-full overflow-auto bg-[#06080f] px-3 py-4 sm:px-8 sm:py-5">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
             <p className="text-xs tracking-widest text-slate-400 uppercase">{locationCopy.pageLabel}</p>
-            <h2 className="text-2xl font-semibold text-white">{displayName}</h2>
+            <h2 className="break-words text-xl font-semibold text-white sm:text-2xl">{displayName}</h2>
             <p className="break-words text-sm text-slate-300">{displaySummary}</p>
           </div>
           <button
             onClick={onBackToMap}
-            className="btn-secondary cursor-pointer text-sm"
+            className="btn-secondary w-full cursor-pointer text-sm sm:w-auto"
           >
             {locationCopy.backToMap}
           </button>
@@ -501,7 +501,7 @@ function LocationPage({
             <iframe
               src={location.liveViewUrl}
               title={displayName}
-              className="h-full min-h-[380px] w-full"
+              className="h-full min-h-[240px] w-full sm:min-h-[380px]"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
@@ -522,20 +522,20 @@ function LocationPage({
               autoPlay
               muted
               loop
-              className="h-full min-h-[380px] w-full object-cover"
+              className="h-full min-h-[240px] w-full object-cover sm:min-h-[380px]"
             />
           ) : (
             <img
               src={location.liveViewUrl}
                 alt={displayName}
-              className="h-full min-h-[380px] w-full object-cover"
+              className="h-full min-h-[240px] w-full object-cover sm:min-h-[380px]"
             />
           )}
         </div>
 
         <div className="w-full py-2">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <p
                 className={`mt-1 break-words leading-relaxed text-slate-300 ${
                   location.id === 'golden' ? 'text-sm sm:text-[0.95rem]' : 'text-sm sm:text-base'
@@ -544,10 +544,10 @@ function LocationPage({
                 {displayDetails}
               </p>
             </div>
-            <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2">
+            <div className="flex w-full flex-col gap-2 rounded-lg border border-white/10 bg-black/25 px-3 py-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <button
                 onClick={() => setMuted((m) => !m)}
-                className="btn-secondary cursor-pointer px-3 py-1 text-xs"
+                className="btn-secondary w-full cursor-pointer px-3 py-1 text-xs sm:w-auto"
               >
                 {muted ? locationCopy.unmute : locationCopy.mute}
               </button>
@@ -558,7 +558,7 @@ function LocationPage({
                 step={0.05}
                 value={masterVolume}
                 onChange={(event) => setMasterVolume(Number(event.target.value))}
-                className="w-36 accent-neon-green"
+                className="w-full accent-neon-green sm:w-36"
               />
             </div>
           </div>
@@ -575,7 +575,7 @@ function LocationPage({
                 <div key={sound.id} className="relative">
                   <button
                     onClick={() => void handleToggleSound(sound.id)}
-                    className={`group w-full cursor-pointer rounded-lg border p-3 pr-12 text-left transition ${
+                    className={`group w-full cursor-pointer rounded-lg border p-3 pr-11 text-left transition sm:pr-12 ${
                       isActive
                         ? 'border-neon-green bg-neon-green/10 shadow-[0_0_16px_rgba(60,255,143,0.25)]'
                         : 'border-white/10 bg-black/20 hover:border-white/30'
@@ -615,7 +615,7 @@ function LocationPage({
                     onClick={() =>
                       setInfoOpenId((current) => (current === sound.id ? null : sound.id))
                     }
-                    className="absolute right-3 top-3 inline-flex min-h-[32px] min-w-[32px] items-center justify-center rounded-full border border-white/20 bg-black/40 px-2 text-[11px] text-slate-200 hover:bg-black/70"
+                    className="absolute right-2 top-2 inline-flex min-h-[32px] min-w-[32px] items-center justify-center rounded-full border border-white/20 bg-black/40 px-2 text-[11px] text-slate-200 hover:bg-black/70 sm:right-3 sm:top-3"
                     aria-label={locationCopy.infoLabel(sound.title[language])}
                     type="button"
                   >
@@ -623,7 +623,7 @@ function LocationPage({
                   </button>
 
                   {showInfo && (
-                    <div className="absolute right-0 top-full z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/15 bg-[#0b101a]/95 p-4 text-sm leading-7 text-slate-100 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur">
+                    <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-xl border border-white/15 bg-[#0b101a]/95 p-3 text-xs leading-6 text-slate-100 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur sm:left-auto sm:right-0 sm:w-80 sm:max-w-[calc(100vw-2rem)] sm:p-4 sm:text-sm sm:leading-7">
                       {sound.subtitle[language]}
                     </div>
                   )}
