@@ -257,9 +257,7 @@ export function MapTour({ onBack }: MapTourProps) {
                   />
                   <circle cx="12" cy="10" r="3" fill="#ffffff" />
                 </svg>
-                <span className={`pointer-events-none mt-2 block rounded-xl bg-black/65 px-2 py-1 text-[11px] text-slate-100 transition-opacity ${
-                  active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`}>
+                <span className="pointer-events-none mt-2 block rounded-xl bg-black/65 px-2 py-1 text-[11px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">
                   {getLocationName(location)}
                 </span>
               </button>
