@@ -205,7 +205,7 @@ export function MapTour({ onBack }: MapTourProps) {
   }
 
   return (
-    <div className="fade-in relative h-full w-full overflow-hidden bg-[#07080f]">
+    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#07080f]">
       <section className="absolute inset-0 overflow-hidden bg-[#101421]">
           <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${TILE_GRID}, 1fr)`, gridTemplateRows: `repeat(${TILE_GRID}, 1fr)` }}>
             {shamShuiPoTiles.map((tile) => (
@@ -475,7 +475,7 @@ function LocationPage({
   }
 
   return (
-    <div className="fade-in h-full w-full overflow-auto bg-[#06080f] px-3 py-4 sm:px-8 sm:py-5">
+    <div className="fade-in min-h-screen w-full overflow-auto bg-[#06080f] px-3 py-4 sm:px-8 sm:py-5">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
