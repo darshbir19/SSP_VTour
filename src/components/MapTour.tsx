@@ -262,9 +262,6 @@ export function MapTour({ onBack }: MapTourProps) {
                 }`}>
                   {getLocationName(location)}
                 </span>
-                <span className="pointer-events-none absolute left-1/2 top-9 -translate-x-1/2 rounded-md bg-black/75 px-2 py-1 text-[10px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">
-                  Click to explore
-                </span>
               </button>
             )
           })}
