@@ -25,7 +25,7 @@ export function HomePage({ onScrollToMap }: HomePageProps) {
   }[language]
 
   return (
-    <div className="relative flex h-full w-full items-center justify-center overflow-hidden px-2 pt-16 sm:px-0 sm:pt-0">
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-2 pt-16 sm:px-0 sm:pt-0">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
