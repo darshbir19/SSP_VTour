@@ -47,13 +47,13 @@ export function HomePage({ onScrollToMap }: HomePageProps) {
       </div>
 
       <div className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 animate-bounce text-[11px] tracking-wider text-white/80 sm:bottom-6 sm:text-xs">
-        Scroll to explore
+        Enter Sham Shui Po map
       </div>
 
       <button
         type="button"
         onClick={onScrollToMap}
-        aria-label="Scroll to map"
+        aria-label="Open Sham Shui Po map"
         className="absolute bottom-4 right-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/18 bg-[rgba(15,23,42,0.45)] p-0 text-lg text-slate-50 backdrop-blur transition hover:bg-white/12 sm:bottom-6 sm:right-6 sm:h-12 sm:w-12"
       >
         ↓

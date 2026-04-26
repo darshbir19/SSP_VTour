@@ -3,10 +3,10 @@ import { useLanguage } from '../context/LanguageContext'
 import { mapLocations } from '../data/mapLocations'
 import type { MapLocation } from '../types/mapLocation'
 import { GoogleStreetView } from './GoogleStreetView'
-
-interface MapTourProps {
-  onBack: () => void
-}
+import { TimelineScroll, type TimelineItem } from './TimelineScroll'
+import timelineImage1980 from '../assets/1.jpg'
+import timelineImage2000 from '../assets/2.jpg'
+import timelineImage2025 from '../assets/3.png'
 
 const TILE_SIZE = 256
 const TILE_GRID = 4
@@ -59,6 +59,32 @@ function buildShamShuiPoTiles(): TileCoord[] {
 
 const shamShuiPoTiles = buildShamShuiPoTiles()
 type LocalizedText = { en: string; zh: string; hi: string }
+
+interface MapTourProps {
+  onBackToHome?: () => void
+  onLocationViewChange?: (open: boolean) => void
+}
+
+const goldenTimelineItems: TimelineItem[] = [
+  {
+    year: '2025',
+    image: timelineImage1980,
+    text: 'The district blends classic bargain hunting with modern creator, gaming, and DIY tech communities.',
+    imageLabel: 'Now',
+  },
+  {
+    year: '2000',
+    image: timelineImage2000,
+    text: 'Golden Computer Centre becomes a major destination for PC parts, consoles, and gamers.',
+    imageLabel: '2000s',
+  },
+  {
+    year: '1980',
+    image: timelineImage2025,
+    text: 'Early street electronics culture grows around Sham Shui Po and repair-first shops.',
+    imageLabel: 'AI reconstruction',
+  },
+]
 
 const locationLocalized: Record<
   string,
@@ -159,29 +185,30 @@ const locationLocalized: Record<
   },
 }
 
-export function MapTour({ onBack }: MapTourProps) {
+export function MapTour({ onBackToHome, onLocationViewChange }: MapTourProps) {
   const { language } = useLanguage()
   const [activeId, setActiveId] = useState<string>(mapLocations[0].id)
   const [view, setView] = useState<'map' | 'location'>('map')
   const [loadedTiles, setLoadedTiles] = useState(0)
 
+  useEffect(() => {
+    onLocationViewChange?.(view === 'location')
+  }, [onLocationViewChange, view])
+
   const mapCopy = {
     en: {
       title: 'Real Sham Shui Po map · Click a pin',
       loading: 'Loading Sham Shui Po map...',
-      backHome: 'Back to Home',
       dataAttribution: 'Map data © Lands Department, HKSAR',
     },
     zh: {
       title: '真实深水埗地图 · 点击标记',
       loading: '正在加载深水埗地图...',
-      backHome: '返回主页',
       dataAttribution: '地图数据 © 香港地政总署',
     },
     hi: {
       title: 'रियल शाम शुई पो मैप · पिन पर क्लिक करें',
       loading: 'शाम शुई पो मैप लोड हो रहा है...',
-      backHome: 'होम पर वापस जाएं',
       dataAttribution: 'मैप डेटा © Lands Department, HKSAR',
     },
   }[language]
@@ -199,15 +226,18 @@ export function MapTour({ onBack }: MapTourProps) {
       <LocationPage
         location={activeLocation}
         language={language}
-        onBackToMap={() => setView('map')}
+        onBackToHome={() => {
+          setView('map')
+          onBackToHome?.()
+        }}
       />
     )
   }
 
   return (
-    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#07080f]">
-      <section className="absolute inset-0 overflow-hidden bg-[#101421]">
-          <div className="absolute inset-0 grid" style={{ gridTemplateColumns: `repeat(${TILE_GRID}, 1fr)`, gridTemplateRows: `repeat(${TILE_GRID}, 1fr)` }}>
+    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#f5f1e8] text-[#1f2937]">
+      <section className="absolute inset-0 overflow-hidden bg-[#fdfaf6]">
+          <div className="absolute inset-0 grid transition-transform duration-700" style={{ gridTemplateColumns: `repeat(${TILE_GRID}, 1fr)`, gridTemplateRows: `repeat(${TILE_GRID}, 1fr)` }}>
             {shamShuiPoTiles.map((tile) => (
               <img
                 key={tile.key}
@@ -224,7 +254,10 @@ export function MapTour({ onBack }: MapTourProps) {
               />
             ))}
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-transparent to-black/45" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(180,83,9,0.14),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(120,113,108,0.12),transparent_36%)]" />
+          <div className="pointer-events-none absolute top-4 left-1/2 z-10 -translate-x-1/2 rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6]/85 px-5 py-3 text-center shadow-sm backdrop-blur-sm">
+            <p className="text-[11px] tracking-[0.25em] text-amber-700 uppercase">{mapCopy.title}</p>
+          </div>
 
           {mapLocations.map((location) => {
             const active = activeId === location.id
@@ -235,29 +268,29 @@ export function MapTour({ onBack }: MapTourProps) {
                   setActiveId(location.id)
                   setView('location')
                 }}
-                className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center min-h-[44px] min-w-[44px]"
+                className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-all duration-300 hover:scale-105"
                 style={{ left: `${location.xPercent}%`, top: `${location.yPercent}%` }}
                 aria-label={location.nameEn}
               >
-                <span className={`absolute inline-flex h-7 w-7 rounded-full bg-red-500/20 blur-sm transition-opacity ${
+                <span className={`absolute inline-flex h-9 w-9 rounded-full bg-amber-500/25 blur-md transition-opacity ${
                   active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                 }`} />
                 <svg
                   viewBox="0 0 24 24"
-                  className={`h-8 w-8 drop-shadow-[0_0_10px_rgba(0,0,0,0.55)] transition-all ${
+                  className={`h-8 w-8 drop-shadow-[0_0_10px_rgba(0,0,0,0.55)] transition-all duration-300 ${
                     active
-                      ? 'scale-110 drop-shadow-[0_0_14px_rgba(255,51,85,0.35)]'
-                      : 'group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(255,51,85,0.3)]'
+                      ? 'scale-110 drop-shadow-[0_0_14px_rgba(180,83,9,0.35)]'
+                      : 'group-hover:scale-110 group-hover:drop-shadow-[0_0_14px_rgba(180,83,9,0.3)]'
                   }`}
                   aria-hidden="true"
                 >
                   <path
                     d="M12 2C7.58 2 4 5.58 4 10c0 5.33 6.22 11.49 7.08 12.32a1.3 1.3 0 0 0 1.84 0C13.78 21.49 20 15.33 20 10c0-4.42-3.58-8-8-8z"
-                    fill="#ff3355"
+                    fill="#b45309"
                   />
                   <circle cx="12" cy="10" r="3" fill="#ffffff" />
                 </svg>
-                <span className="pointer-events-none mt-2 block rounded-xl bg-black/65 px-2 py-1 text-[11px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="pointer-events-none mt-2 block rounded-xl border border-[#e5e7eb] bg-[#fdfaf6]/95 px-2 py-1 text-[11px] text-[#1f2937] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   {getLocationName(location)}
                 </span>
               </button>
@@ -265,7 +298,7 @@ export function MapTour({ onBack }: MapTourProps) {
           })}
 
           <a
-            className="absolute bottom-3 right-3 z-10 rounded bg-black/50 px-2 py-1 text-[10px] text-slate-300 underline underline-offset-2"
+            className="absolute bottom-3 right-3 z-10 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6]/85 px-3 py-1.5 text-[10px] text-[#6b7280] underline underline-offset-2 backdrop-blur transition-all duration-300 hover:text-[#1f2937]"
             href="https://geodata.gov.hk/gs/"
             target="_blank"
             rel="noreferrer"
@@ -274,24 +307,12 @@ export function MapTour({ onBack }: MapTourProps) {
           </a>
 
           {loadedTiles === 0 && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 text-sm text-slate-200">
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#fdfaf6]/90 text-sm text-[#6b7280]">
               {mapCopy.loading}
             </div>
           )}
       </section>
 
-      <button
-        onClick={onBack}
-        className="absolute left-3 top-3 z-30 inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:left-4 sm:top-4 sm:text-sm"
-      >
-        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-          <path
-            d="M12 3 3 10h2v10h5v-6h4v6h5V10h2L12 3z"
-            fill="currentColor"
-          />
-        </svg>
-        <span className="hidden sm:inline">{mapCopy.backHome}</span>
-      </button>
     </div>
   )
 }
@@ -299,13 +320,13 @@ export function MapTour({ onBack }: MapTourProps) {
 interface LocationPageProps {
   location: MapLocation
   language: 'en' | 'zh' | 'hi'
-  onBackToMap: () => void
+  onBackToHome: () => void
 }
 
 function LocationPage({
   location,
   language,
-  onBackToMap,
+  onBackToHome,
 }: LocationPageProps) {
   const [masterVolume, setMasterVolume] = useState(0.8)
   const [muted, setMuted] = useState(false)
@@ -317,7 +338,7 @@ function LocationPage({
   const locationCopy = {
     en: {
       pageLabel: 'Location Page',
-      backToMap: '← Back to Map',
+      backToHome: '← Back to Homepage',
       mute: 'Mute',
       unmute: 'Unmute',
       demoSounds: 'Explore local soundscape',
@@ -328,7 +349,7 @@ function LocationPage({
     },
     zh: {
       pageLabel: '地点页面',
-      backToMap: '← 返回地图',
+      backToHome: '← 返回主页',
       mute: '静音',
       unmute: '取消静音',
       demoSounds: '探索在地声音景观',
@@ -339,7 +360,7 @@ function LocationPage({
     },
     hi: {
       pageLabel: 'लोकेशन पेज',
-      backToMap: '← मैप पर वापस जाएं',
+      backToHome: '← होमपेज पर वापस जाएं',
       mute: 'म्यूट',
       unmute: 'अनम्यूट',
       demoSounds: 'स्थानीय साउंडस्केप एक्सप्लोर करें',
@@ -353,6 +374,15 @@ function LocationPage({
   const displayName = localizedLocation?.name[language] ?? (language === 'zh' ? location.nameZh : location.nameEn)
   const displaySummary = localizedLocation?.summary[language] ?? location.summary
   const displayDetails = localizedLocation?.details[language] ?? location.detailsEn
+  const detailLines = useMemo(
+    () =>
+      displayDetails
+        .split(/[.!?]\s+/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .slice(0, 4),
+    [displayDetails],
+  )
 
   const demoSounds = [
     {
@@ -475,23 +505,25 @@ function LocationPage({
   }
 
   return (
-    <div className="fade-in min-h-screen w-full overflow-auto bg-[#06080f] px-3 py-4 sm:px-8 sm:py-5">
+    <div className="fade-in min-h-screen w-full overflow-auto bg-[#f5f1e8] px-4 py-8 text-[#1f2937] sm:px-8 sm:py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs tracking-widest text-slate-400 uppercase">{locationCopy.pageLabel}</p>
-            <h2 className="break-words text-xl font-semibold text-white sm:text-2xl">{displayName}</h2>
-            <p className="break-words text-sm text-slate-300">{displaySummary}</p>
+        <div className="rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-6 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-sm tracking-widest text-amber-700 uppercase">{locationCopy.pageLabel}</p>
+              <h2 className="mt-1 break-words text-4xl font-semibold text-[#1f2937] sm:text-5xl">{displayName}</h2>
+              <p className="mt-2 break-words text-base leading-relaxed text-[#6b7280]">{displaySummary}</p>
+            </div>
+            <button
+              onClick={onBackToHome}
+              className="w-full cursor-pointer rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-sm text-[#1f2937] transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:w-auto"
+            >
+              {locationCopy.backToHome}
+            </button>
           </div>
-          <button
-            onClick={onBackToMap}
-            className="btn-secondary w-full cursor-pointer text-sm sm:w-auto"
-          >
-            {locationCopy.backToMap}
-          </button>
         </div>
 
-        <div className="w-full overflow-hidden rounded-lg bg-black">
+        <div className="relative w-full overflow-hidden rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] shadow-sm">
           {location.liveViewType === 'embed' ? (
             <iframe
               src={location.liveViewUrl}
@@ -526,23 +558,25 @@ function LocationPage({
               className="h-full min-h-[240px] w-full object-cover sm:min-h-[380px]"
             />
           )}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
 
         <div className="w-full py-2">
-          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-6 shadow-sm sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <p
-                className={`mt-1 break-words leading-relaxed text-slate-300 ${
-                  location.id === 'golden' ? 'text-sm sm:text-[0.95rem]' : 'text-sm sm:text-base'
-                }`}
-              >
-                {displayDetails}
-              </p>
+              <ul className="space-y-2 text-base leading-relaxed text-[#6b7280]">
+                {detailLines.map((line, idx) => (
+                  <li key={`detail-line-${idx}`} className="flex gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-700" />
+                    <span>{line}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex w-full flex-col gap-2 rounded-lg border border-white/10 bg-black/25 px-3 py-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex w-full flex-col gap-2 rounded-xl border border-[#e5e7eb] bg-[#f5f1e8] px-3 py-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
               <button
                 onClick={() => setMuted((m) => !m)}
-                className="btn-secondary w-full cursor-pointer px-3 py-1 text-xs sm:w-auto"
+                className="w-full cursor-pointer rounded-lg border border-[#e5e7eb] bg-[#fdfaf6] px-3 py-1 text-xs text-[#1f2937] transition-all duration-300 ease-in-out hover:scale-[1.02] sm:w-auto"
               >
                 {muted ? locationCopy.unmute : locationCopy.mute}
               </button>
@@ -553,12 +587,12 @@ function LocationPage({
                 step={0.05}
                 value={masterVolume}
                 onChange={(event) => setMasterVolume(Number(event.target.value))}
-                className="w-full accent-neon-green sm:w-36"
+                className="w-full accent-amber-700 sm:w-36"
               />
             </div>
           </div>
 
-          <h3 className="mb-3 text-sm font-semibold tracking-wider text-neon-green uppercase">
+          <h3 className="mb-3 text-sm font-semibold tracking-widest text-amber-700 uppercase">
             {locationCopy.demoSounds}
           </h3>
 
@@ -570,28 +604,28 @@ function LocationPage({
                 <div key={sound.id} className="relative">
                   <button
                     onClick={() => void handleToggleSound(sound.id)}
-                    className={`group w-full cursor-pointer rounded-lg border p-3 pr-11 text-left transition sm:pr-12 ${
+                    className={`group w-full cursor-pointer rounded-2xl border p-4 pr-11 text-left transition-all duration-300 ease-in-out sm:pr-12 ${
                       isActive
-                        ? 'border-neon-green bg-neon-green/10 shadow-[0_0_16px_rgba(60,255,143,0.25)]'
-                        : 'border-white/10 bg-black/20 hover:border-white/30'
+                        ? 'scale-[1.01] border-amber-700/55 bg-amber-50 shadow-sm'
+                        : 'border-[#e5e7eb] bg-[#fdfaf6] hover:border-amber-700/40 hover:bg-[#f5f1e8]'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <span
                         className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs ${
                           isActive
-                            ? 'border-neon-green text-neon-green bg-neon-green/10'
-                            : 'border-white/25 text-slate-200 bg-white/5'
+                            ? 'border-amber-700 text-amber-700 bg-amber-50'
+                            : 'border-[#d1d5db] text-[#6b7280] bg-white'
                         }`}
                         aria-hidden="true"
                       >
                         {isActive ? '■' : '▶'}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-white">{sound.title[language]}</p>
+                        <p className="text-sm font-medium text-[#1f2937]">{sound.title[language]}</p>
                       </div>
                     </div>
-                    <p className="mt-2 text-xs font-semibold text-neon-yellow">
+                    <p className="mt-2 text-xs font-semibold text-amber-700">
                       {isActive ? `⏸ ${locationCopy.clickToStop}` : `▶ ${locationCopy.clickToPlay}`}
                     </p>
                     <audio
@@ -610,7 +644,7 @@ function LocationPage({
                     onClick={() =>
                       setInfoOpenId((current) => (current === sound.id ? null : sound.id))
                     }
-                    className="absolute right-2 top-2 inline-flex min-h-[32px] min-w-[32px] items-center justify-center rounded-full border border-white/20 bg-black/40 px-2 text-[11px] text-slate-200 hover:bg-black/70 sm:right-3 sm:top-3"
+                    className="absolute right-2 top-2 inline-flex min-h-[32px] min-w-[32px] items-center justify-center rounded-full border border-[#e5e7eb] bg-[#fdfaf6] px-2 text-[11px] text-[#6b7280] transition-all duration-300 ease-in-out hover:border-amber-700/40 hover:text-[#1f2937] sm:right-3 sm:top-3"
                     aria-label={locationCopy.infoLabel(sound.title[language])}
                     type="button"
                   >
@@ -618,7 +652,7 @@ function LocationPage({
                   </button>
 
                   {showInfo && (
-                    <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-xl border border-white/15 bg-[#0b101a]/95 p-3 text-xs leading-6 text-slate-100 shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur sm:left-auto sm:right-0 sm:w-80 sm:max-w-[calc(100vw-2rem)] sm:p-4 sm:text-sm sm:leading-7">
+                    <div className="absolute left-0 right-0 top-full z-20 mt-2 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] p-3 text-xs leading-6 text-[#6b7280] shadow-sm backdrop-blur sm:left-auto sm:right-0 sm:w-80 sm:max-w-[calc(100vw-2rem)] sm:p-4 sm:text-sm sm:leading-7">
                       {sound.subtitle[language]}
                     </div>
                   )}
@@ -626,7 +660,17 @@ function LocationPage({
               )
             })}
           </div>
-          <p className="mt-3 text-xs text-slate-400">{locationCopy.headphones}</p>
+          <p className="mt-3 text-xs text-[#6b7280]">{locationCopy.headphones}</p>
+
+          {location.id === 'golden' && (
+            <div className="mt-10 border-t border-[#e5e7eb] pt-8">
+              <TimelineScroll
+                title="Timeline Scroll"
+                items={goldenTimelineItems}
+                className="bg-[#fdfaf6]"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
