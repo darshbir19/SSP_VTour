@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="group inline-flex h-10 min-w-10 max-w-[45vw] items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-2 text-sm text-white backdrop-blur hover:bg-black/75"
+        className="group inline-flex h-10 min-w-10 max-w-[45vw] items-center justify-center gap-1 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-3 text-sm text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40"
         aria-label="Language"
         title="Language"
       >
@@ -24,13 +24,13 @@ export function LanguageSwitcher() {
         <span className="truncate text-xs">
           {languageOptions.find((o) => o.id === language)?.label}
         </span>
-        <span className="pointer-events-none absolute -bottom-8 right-0 rounded bg-black/70 px-2 py-1 text-[11px] text-slate-100 opacity-0 transition-opacity group-hover:opacity-100">
+        <span className="pointer-events-none absolute -bottom-8 right-0 rounded border border-[#e5e7eb] bg-[#fdfaf6] px-2 py-1 text-[11px] text-[#1f2937] opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
           Language
         </span>
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 min-w-36 max-w-[calc(100vw-1.5rem)] rounded-xl border border-white/15 bg-[#0b101a]/95 p-1 text-sm text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur">
+        <div className="absolute right-0 mt-2 min-w-36 max-w-[calc(100vw-1.5rem)] rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] p-1 text-sm text-[#1f2937] shadow-sm">
           {languageOptions.map((option) => (
             <button
               key={option.id}
@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
                 setOpen(false)
               }}
               className={`block min-h-[44px] w-full cursor-pointer rounded-lg px-3 py-2 text-left ${
-                language === option.id ? 'bg-white/15 text-white ring-1 ring-white/30' : 'hover:bg-white/10'
+                language === option.id ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-700/20' : 'hover:bg-[#f5f1e8]'
               }`}
             >
               {option.label}

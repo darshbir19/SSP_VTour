@@ -15,8 +15,9 @@ export const mapLocations: MapLocation[] = [
       'Famous for second-hand electronics, old radios, cables, and bargain-hunting culture. Street energy peaks in the late afternoon.',
     xPercent: 45,
     yPercent: 55,
-    liveViewUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1600&h=900&fit=crop',
-    liveViewType: 'image',
+    liveViewUrl:
+      'https://www.google.com/maps/embed?pb=!4v1777212786047!6m8!1m7!1sD9mL7U5ZhuyTBDHiMT64Nw!2m2!1d22.3306380153273!2d114.1614313875081!3f177.2243685499552!4f-13.780646924590911!5f0.7820865974627469',
+    liveViewType: 'embed',
     soundscapeUrl: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
   },
   {
@@ -29,8 +30,9 @@ export const mapLocations: MapLocation[] = [
       'A nostalgic strip packed with wholesale and retail toy shops. You will see hanging model kits, balloons, and old-school childhood favorites.',
     xPercent: 58,
     yPercent: 48,
-    liveViewUrl: 'https://images.unsplash.com/photo-1513415564515-763d91423bdd?w=1600&h=900&fit=crop',
-    liveViewType: 'image',
+    liveViewUrl:
+      'https://www.google.com/maps/embed?pb=!4v1777212568220!6m8!1m7!1s4jNZkPbKUQ6drRTVqHuotA!2m2!1d22.33112339145579!2d114.1638407545747!3f165.1436506355563!4f-15.504562039760387!5f0.9220703631491821',
+    liveViewType: 'embed',
     soundscapeUrl: 'https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3',
   },
   {
@@ -43,14 +45,15 @@ export const mapLocations: MapLocation[] = [
       'Traditional wet market atmosphere with fishmongers, produce stalls, and constant movement. Best experienced in morning and lunchtime hours.',
     xPercent: 40,
     yPercent: 64,
-    liveViewUrl: 'https://images.unsplash.com/photo-1504457047772-27faf1c00561?w=1600&h=900&fit=crop',
-    liveViewType: 'image',
+    liveViewUrl:
+      'https://www.google.com/maps/embed?pb=!4v1777212962072!6m8!1m7!1slAyMt1UKMahv98dp-fcGCQ!2m2!1d22.32981148560473!2d114.160764273546!3f222.7587132033819!4f-9.227065176235584!5f0.7820865974627469',
+    liveViewType: 'embed',
     soundscapeUrl: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
   },
   {
     id: 'golden',
-    nameEn: 'Golden Computer Centre Entrance',
-    nameZh: '黃金電腦商場入口',
+    nameEn: 'Golden Computer Arcade',
+    nameZh: '黃金電腦商場',
     summary:
       'Golden Computer Arcade – A dense hub for affordable electronics and gaming culture.',
     shortDescription: 'Neon glow, PC shops, keyboards, and arcade energy.',
@@ -59,7 +62,7 @@ export const mapLocations: MapLocation[] = [
     xPercent: 52,
     yPercent: 40,
     liveViewUrl:
-      'https://www.google.com/maps/embed?pb=!4v1773712876342!6m8!1m7!1sCAoSFkNJSE0wb2dLRUlDQWdJQzRuS1AxWXc.!2m2!1d22.33169912593825!2d114.1625997870271!3f334.74807585572864!4f20.458204391868577!5f0.7820865974627469',
+      'https://www.google.com/maps/embed?pb=!4v1777206777462!6m8!1m7!1svydMmWM7zRMF_N794J0gwQ!2m2!1d22.33231613044541!2d114.161532352588!3f133.9147411491499!4f6.028556321434365!5f0.7820865974627469',
     liveViewType: 'embed',
     soundscapeUrl: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
   },

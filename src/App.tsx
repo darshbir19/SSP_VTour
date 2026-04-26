@@ -21,11 +21,11 @@ export function App() {
   return (
     <LanguageProvider>
       <div className="relative min-h-screen w-full overflow-x-hidden bg-ssp-bg text-slate-100 scroll-smooth">
-        <div className="pointer-events-auto fixed left-3 right-3 top-3 z-[100] flex items-center justify-end gap-2 sm:left-auto sm:right-6 sm:top-5">
+        <div className="pointer-events-auto fixed left-4 right-4 top-8 z-[100] flex items-center justify-end gap-2 sm:left-auto sm:right-8 sm:top-12">
           <button
             type="button"
             onClick={() => setContributeOpen(true)}
-            className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1 rounded-xl border border-white/25 bg-black/55 px-3 text-xs text-white backdrop-blur hover:bg-black/75 sm:min-w-10 sm:text-sm"
+            className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-xs text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:min-w-10 sm:text-sm"
           >
             Contribute
           </button>

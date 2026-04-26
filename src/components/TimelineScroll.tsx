@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 export interface TimelineItem {
   year: string
+  title?: string
   image: string
   text: string
   imageLabel?: string
@@ -16,15 +17,14 @@ interface TimelineScrollProps {
 }
 
 export const sampleTimelineData: TimelineItem[] = [
-  { year: '1980', image: '/images/1980.jpg', text: 'Old market streets...' },
-  { year: '2000', image: '/images/2000.jpg', text: 'Growing electronics hub...' },
-  { year: '2025', image: '/images/2025.jpg', text: 'Modern dense district...' },
+  { year: '1980', title: 'Old Market Streets', image: '/images/1980.jpg', text: 'Old market streets...' },
+  { year: '2000', title: 'Electronics Hub', image: '/images/2000.jpg', text: 'Growing electronics hub...' },
+  { year: '2025', title: 'Modern Dense District', image: '/images/2025.jpg', text: 'Modern dense district...' },
 ]
 
 export function TimelineScroll({
   items,
-  title = 'Neighborhood Timeline',
-  subtitle,
+  title = 'Memory Scroll',
   className = '',
   initialYear,
 }: TimelineScrollProps) {
@@ -45,35 +45,34 @@ export function TimelineScroll({
   useEffect(() => {
     if (!items.length) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        let bestVisible = entries[0]
+    const updateActiveItem = () => {
+      const viewportCenter = window.innerHeight / 2
+      let closestIndex = 0
+      let closestDistance = Number.POSITIVE_INFINITY
 
-        for (const entry of entries) {
-          if (
-            entry.isIntersecting &&
-            (!bestVisible || entry.intersectionRatio > bestVisible.intersectionRatio)
-          ) {
-            bestVisible = entry
-          }
+      sectionRefs.current.forEach((section, index) => {
+        if (!section) return
+        const rect = section.getBoundingClientRect()
+        const sectionCenter = rect.top + rect.height / 2
+        const distance = Math.abs(sectionCenter - viewportCenter)
+
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestIndex = index
         }
+      })
 
-        if (!bestVisible?.isIntersecting) return
-        const nextIndex = Number((bestVisible.target as HTMLElement).dataset.index)
-        if (!Number.isNaN(nextIndex)) {
-          setActiveIndex(nextIndex)
-        }
-      },
-      {
-        threshold: [0.25, 0.5, 0.75],
-        rootMargin: '-15% 0px -35% 0px',
-      },
-    )
+      setActiveIndex(closestIndex)
+    }
 
-    const currentRefs = sectionRefs.current.filter(Boolean) as HTMLElement[]
-    currentRefs.forEach((section) => observer.observe(section))
+    updateActiveItem()
+    window.addEventListener('scroll', updateActiveItem, { passive: true })
+    window.addEventListener('resize', updateActiveItem)
 
-    return () => observer.disconnect()
+    return () => {
+      window.removeEventListener('scroll', updateActiveItem)
+      window.removeEventListener('resize', updateActiveItem)
+    }
   }, [items.length])
 
   if (!items.length) {
@@ -86,74 +85,18 @@ export function TimelineScroll({
     )
   }
 
-  const activeItem = items[activeIndex] ?? items[0]
-  const activePoints = activeItem.text
-    .split(/[.!?]\s+/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 3)
-
   return (
     <section className={`w-full rounded-3xl border border-[#e5e7eb] bg-[#fdfaf6] text-[#1f2937] shadow-sm ${className}`}>
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-8 px-5 py-10 md:px-8 lg:grid-cols-[minmax(320px,1fr)_minmax(380px,1fr)] lg:gap-12 lg:px-10 lg:py-14">
-        <aside className="lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
-          <div className="h-full rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-5 shadow-sm sm:p-6">
-            <p className="text-sm tracking-widest text-amber-700 uppercase">{title}</p>
-            <h3 className="mt-2 text-4xl font-semibold text-[#1f2937] sm:text-5xl">{activeItem.year}</h3>
-            {subtitle ? <p className="mt-2 text-base leading-relaxed text-[#6b7280]">{subtitle}</p> : null}
-
-            <div className="relative mt-5 overflow-hidden rounded-2xl border border-[#e5e7eb] bg-[#f5f1e8]">
-              <div className="relative aspect-[16/10] w-full">
-                {items.map((item, index) => (
-                  <img
-                    key={item.year}
-                    src={item.image}
-                    alt={`${item.year} timeline`}
-                    className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-in-out ${
-                      index === activeIndex ? 'scale-100 opacity-100' : 'scale-105 opacity-0'
-                    }`}
-                  />
-                ))}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                {activeItem.imageLabel ? (
-                  <span className="absolute left-3 top-3 rounded-full border border-[#e5e7eb] bg-[#fdfaf6]/90 px-2.5 py-1 text-[10px] tracking-wide text-amber-700 uppercase">
-                    {activeItem.imageLabel}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="mt-5 rounded-2xl border border-[#e5e7eb] bg-[#f5f1e8]/60 p-4">
-              <ul className="space-y-2 text-base leading-relaxed text-[#6b7280]">
-                {activePoints.map((line, idx) => (
-                  <li key={`${activeItem.year}-point-${idx}`} className="flex gap-2">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-700" />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-3 py-2 text-xs text-[#6b7280] transition-all duration-300 ease-in-out hover:scale-[1.02] hover:text-[#1f2937]"
-            >
-              Compare (Then vs Now)
-              <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">Soon</span>
-            </button>
-          </div>
-        </aside>
-
+      <div className="mx-auto w-full max-w-6xl px-5 py-10 md:px-8 lg:px-10 lg:py-14">
+        <p className="mb-8 text-2xl font-semibold tracking-widest text-amber-700 uppercase">
+          {title}
+        </p>
         <div className="relative">
-          <div className="absolute bottom-0 left-4 top-0 w-px bg-gradient-to-b from-transparent via-amber-300/70 to-transparent" />
-          <div className="space-y-10">
+          <div className="absolute bottom-10 left-1/2 top-10 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-300/70 to-transparent lg:block" />
+          <div className="space-y-14">
             {items.map((item, index) => {
               const active = index === activeIndex
-              const lines = item.text
-                .split(/[.!?]\s+/)
-                .map((line) => line.trim())
-                .filter(Boolean)
-                .slice(0, 3)
+              const reversed = index % 2 === 1
               return (
                 <article
                   key={item.year}
@@ -161,17 +104,19 @@ export function TimelineScroll({
                     sectionRefs.current[index] = el
                   }}
                   data-index={index}
-                  className="relative min-h-[55vh] pl-10"
+                  className={`relative flex flex-col gap-6 py-12 transition-all duration-500 ease-in-out lg:items-center lg:gap-12 ${
+                    reversed ? 'lg:flex-row-reverse' : 'lg:flex-row'
+                  } ${active ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-75'}`}
                 >
                   <span
-                    className={`absolute left-4 top-8 h-3.5 w-3.5 -translate-x-1/2 rounded-full border transition-all duration-300 ease-in-out ${
+                    className={`absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full border transition-all duration-300 ease-in-out lg:block ${
                       active
-                        ? 'h-4 w-4 border-amber-700 bg-amber-700'
-                        : 'border-[#d1d5db] bg-[#fdfaf6]'
+                        ? 'h-5 w-5 border-amber-700 bg-amber-700 shadow-[0_0_0_8px_rgba(180,83,9,0.12)]'
+                        : 'h-3.5 w-3.5 border-[#d1d5db] bg-[#fdfaf6]'
                     }`}
                   />
 
-                  <div className="group relative mb-4 overflow-hidden rounded-2xl border border-[#e5e7eb] bg-[#f5f1e8] shadow-sm">
+                  <div className="group relative w-full overflow-hidden rounded-xl border border-[#e5e7eb] bg-[#f5f1e8] shadow-md lg:w-1/2">
                     <img
                       src={item.image}
                       alt={`${item.year} timeline preview`}
@@ -179,34 +124,30 @@ export function TimelineScroll({
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     {item.imageLabel ? (
-                      <span className="absolute left-3 top-3 rounded-full border border-[#e5e7eb] bg-[#fdfaf6]/90 px-2 py-1 text-[10px] tracking-wide text-amber-700 uppercase">
+                      <span className="absolute left-3 top-3 rounded-full border border-[#e5e7eb] bg-[#fdfaf6]/90 px-2 py-1 text-[10px] font-semibold tracking-wide text-[#b45309] uppercase">
                         {item.imageLabel}
                       </span>
                     ) : null}
                   </div>
 
                   <div
-                    className={`rounded-2xl border bg-[#fdfaf6] p-6 shadow-sm transition-all duration-300 ease-in-out ${
+                    className={`w-full max-w-md rounded-2xl border bg-[#fdfaf6] p-6 shadow-sm transition-all duration-300 ease-in-out lg:w-1/2 ${
                       active
                         ? 'translate-y-0 border-amber-700/60'
                         : 'translate-y-1 border-[#e5e7eb]'
                     }`}
                   >
-                    <p
-                      className={`text-sm tracking-widest uppercase transition-all duration-300 ${
-                        active ? 'text-amber-700' : 'text-[#6b7280]'
-                      }`}
-                    >
+                    <p className="text-base font-semibold tracking-widest text-amber-700 uppercase transition-all duration-300">
                       {item.year}
                     </p>
-                    <ul className="mt-3 space-y-2 text-base leading-relaxed text-[#6b7280]">
-                      {lines.map((line, idx) => (
-                        <li key={`${item.year}-line-${idx}`} className="flex gap-2">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-700" />
-                          <span>{line}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {item.title ? (
+                      <h3 className="mt-3 text-2xl font-semibold leading-tight text-[#1f2937]">
+                        {item.title}
+                      </h3>
+                    ) : null}
+                    <p className="mt-3 text-base leading-relaxed text-[#6b7280]">
+                      {item.text}
+                    </p>
                   </div>
                 </article>
               )
