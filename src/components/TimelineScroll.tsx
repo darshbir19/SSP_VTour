@@ -141,7 +141,7 @@ export function TimelineScroll({
                       {item.year}
                     </p>
                     {item.title ? (
-                      <h3 className="mt-3 text-2xl font-semibold leading-tight text-[#1f2937]">
+                      <h3 className="mt-3 whitespace-nowrap text-xl font-semibold leading-tight text-[#1f2937] sm:text-2xl">
                         {item.title}
                       </h3>
                     ) : null}

@@ -94,24 +94,24 @@ const locationTimelineItems: Record<string, TimelineItem[]> = {
   apliu: [
     {
       year: '2025',
-      title: 'A Living Repair Marketplace',
-      image: timelineImage1980,
-      text: 'Apliu Street remains a dense open-air marketplace where second-hand electronics, cables, tools, and everyday repair knowledge circulate side by side. The street keeps older forms of reuse visible in a city shaped by fast replacement.',
+      title: 'Wrapped in Transition - Gentrification',
+      image: '/images/Apliu_2025.jpg',
+      text: 'In the background, buildings are stripped and rebuilt behind layers of scaffolding. What looks like maintenance signals something deeper—rising values, shifting ownership, and a slow redefinition of the neighborhood. The streets remain familiar, still full of movement, routine, and everyday life. Even as the foundations shift, the place holds on to its character—for now.',
       imageLabel: 'Now',
     },
     {
       year: '2005',
       title: 'Bargain Tech Culture',
-      image: timelineImage2000,
+      image: '/images/ApLiuStreet_2005.jpg',
       text: 'By the 2000s, the street had become a familiar destination for bargain hunters, collectors, and hobbyists looking for parts that could not be found in regular shops. Its value came from comparison, negotiation, and local knowledge.',
       imageLabel: '2005',
     },
     {
       year: '1980',
       title: 'Street-Level Electronics Trade',
-      image: timelineImage2025,
-      text: 'Earlier electronics culture here was shaped by small stalls, loose parts, and informal repair practices. People came to search, test, bargain, and fix, turning the street into a practical archive of working technology.',
-      imageLabel: 'Archive memory',
+      image: '/images/Apliu_80.png',
+      text: 'Under hanging signs and crowded stalls, Apliu Street thrived as a place of exchange. Vendors laid out rows of second-hand cameras, each with its own story, while customers gathered not just to buy, but to compare, negotiate, and connect. It wasn’t polished—but it was alive, practical, and deeply human.',
+      imageLabel: 'Ai reconstruction',
     },
   ],
   'pei-ho': [
