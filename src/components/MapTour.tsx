@@ -284,7 +284,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '这些互动突显商业活动中的人际强度，协商与竞争共同塑造这里的体验。',
           hi: 'ये बातचीत व्यापार की मानवीय तीव्रता दिखाती है, जहाँ मोलभाव और प्रतिस्पर्धा अनुभव को आकार देते हैं।',
         },
-        url: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
+        url: '/audio/Test.mp3',
       },
       {
         id: 'golden-electronic-sounds',
@@ -788,6 +788,62 @@ interface LocationPageProps {
   onBackToHome: () => void
 }
 
+interface WaveformProgressBarProps {
+  progress: number
+  currentTime: number
+  duration: number
+}
+
+function formatAudioTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0:00'
+
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.floor(seconds % 60)
+  return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`
+}
+
+function WaveformProgressBar({ progress, currentTime, duration }: WaveformProgressBarProps) {
+  const bars = useMemo(
+    () =>
+      Array.from({ length: 72 }, (_, index) => {
+        const wave = Math.sin(index * 0.82) * 0.45 + Math.sin(index * 0.23) * 0.35
+        return 16 + Math.round((Math.abs(wave) + ((index * 13) % 7) / 18) * 18)
+      }),
+    [],
+  )
+  const safeProgress = Math.max(0, Math.min(1, progress))
+
+  return (
+    <div className="flex w-full items-center gap-2 text-[11px] font-medium tabular-nums text-stone-500/80">
+      <span className="w-9 text-right">{formatAudioTime(currentTime)}</span>
+      <div
+        className="relative flex h-8 min-w-0 flex-1 items-center gap-[2px] rounded-full border border-stone-200/80 bg-white/55 px-2"
+        aria-hidden="true"
+      >
+        {bars.map((height, index) => {
+          const barProgress = index / Math.max(1, bars.length - 1)
+          const filled = barProgress <= safeProgress
+
+          return (
+            <span
+              key={index}
+              className={`w-0.5 flex-1 rounded-full opacity-75 transition-colors duration-150 ${
+                filled ? 'bg-amber-600/60' : 'bg-stone-300/70'
+              }`}
+              style={{ height: `${height}%` }}
+            />
+          )
+        })}
+        <span
+          className="absolute top-1.5 bottom-1.5 w-px rounded-full bg-stone-700/35 transition-[left] duration-100"
+          style={{ left: `calc(0.5rem + ${safeProgress} * (100% - 1rem))` }}
+        />
+      </div>
+      <span className="w-9">{formatAudioTime(duration)}</span>
+    </div>
+  )
+}
+
 function LocationPage({
   location,
   language,
@@ -796,6 +852,9 @@ function LocationPage({
   const [masterVolume, setMasterVolume] = useState(0.8)
   const [muted, setMuted] = useState(false)
   const [activeSoundId, setActiveSoundId] = useState<string | null>(null)
+  const [activeProgress, setActiveProgress] = useState(0)
+  const [activeTime, setActiveTime] = useState(0)
+  const [activeDuration, setActiveDuration] = useState(0)
   const soundRefs = useRef<Record<string, HTMLAudioElement | null>>({})
 
   const locationCopy = {
@@ -866,6 +925,24 @@ function LocationPage({
     }
   }, [])
 
+  useEffect(() => {
+    if (!activeSoundId) return undefined
+
+    let animationFrame = 0
+    const updateProgress = () => {
+      const audio = soundRefs.current[activeSoundId]
+      if (audio && Number.isFinite(audio.duration) && audio.duration > 0) {
+        setActiveProgress(audio.currentTime / audio.duration)
+        setActiveTime(audio.currentTime)
+        setActiveDuration(audio.duration)
+      }
+      animationFrame = requestAnimationFrame(updateProgress)
+    }
+
+    updateProgress()
+    return () => cancelAnimationFrame(animationFrame)
+  }, [activeSoundId])
+
   const handleToggleSound = async (soundId: string) => {
     if (activeSoundId === soundId) {
       const playing = soundRefs.current[soundId]
@@ -874,6 +951,9 @@ function LocationPage({
         playing.currentTime = 0
       }
       setActiveSoundId(null)
+      setActiveProgress(0)
+      setActiveTime(0)
+      setActiveDuration(0)
       return
     }
 
@@ -891,8 +971,18 @@ function LocationPage({
     try {
       await target.play()
       setActiveSoundId(soundId)
+      setActiveTime(target.currentTime)
+      setActiveDuration(Number.isFinite(target.duration) ? target.duration : 0)
+      setActiveProgress(
+        Number.isFinite(target.duration) && target.duration > 0
+          ? target.currentTime / target.duration
+          : 0,
+      )
     } catch {
       setActiveSoundId(null)
+      setActiveProgress(0)
+      setActiveTime(0)
+      setActiveDuration(0)
     }
   }
 
@@ -999,12 +1089,15 @@ function LocationPage({
                     return (
                       <div
                         key={sound.id}
-                        className={`group rounded-2xl border p-4 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-md ${
+                        className={`group relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-md ${
                           isActive
                             ? 'border-amber-400 bg-amber-50/80 shadow-sm'
                             : 'border-[#e5e7eb] bg-[#fdfaf6] hover:border-amber-700/30'
                         }`}
                       >
+                        {isActive && (
+                          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(245,158,11,0.2),transparent_34%)]" />
+                        )}
                         <div className="flex min-w-0 items-start gap-4">
                           <button
                             type="button"
@@ -1018,7 +1111,7 @@ function LocationPage({
                           >
                             {isActive ? '⏸' : '▶'}
                           </button>
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="font-semibold text-gray-900">{sound.title[language]}</p>
                             <p className="mt-2 text-sm italic leading-relaxed text-gray-600">
                               {sound.subtitle[language]}
@@ -1028,10 +1121,23 @@ function LocationPage({
                                 {sound.interpretation[language]}
                               </p>
                             )}
+                            <div className={`mt-3 transition-all duration-300 ease-out ${
+                              isActive
+                                ? 'max-h-12 opacity-100'
+                                : 'max-h-0 overflow-hidden opacity-0'
+                            }`}>
+                              {isActive && (
+                                <WaveformProgressBar
+                                  progress={activeProgress}
+                                  currentTime={activeTime}
+                                  duration={activeDuration}
+                                />
+                              )}
+                            </div>
                             {isActive && (
                               <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700">
-                                <span className="h-2 w-2 rounded-full bg-amber-600 animate-pulse" />
-                                ● Now Playing
+                                <span className="h-2 w-2 animate-pulse rounded-full bg-amber-600" />
+                                Now Playing
                               </p>
                             )}
                           </div>
@@ -1043,6 +1149,27 @@ function LocationPage({
                           src={sound.url}
                           loop
                           preload="none"
+                          onLoadedMetadata={(event) => {
+                            if (activeSoundId === sound.id) {
+                              setActiveDuration(event.currentTarget.duration)
+                            }
+                          }}
+                          onTimeUpdate={(event) => {
+                            const audio = event.currentTarget
+                            if (activeSoundId === sound.id && Number.isFinite(audio.duration) && audio.duration > 0) {
+                              setActiveProgress(audio.currentTime / audio.duration)
+                              setActiveTime(audio.currentTime)
+                              setActiveDuration(audio.duration)
+                            }
+                          }}
+                          onEnded={() => {
+                            if (activeSoundId === sound.id) {
+                              setActiveSoundId(null)
+                              setActiveProgress(0)
+                              setActiveTime(0)
+                              setActiveDuration(0)
+                            }
+                          }}
                         />
                       </div>
                     )
