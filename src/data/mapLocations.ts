@@ -15,6 +15,9 @@ export const mapLocations: MapLocation[] = [
       'Famous for second-hand electronics, old radios, cables, and bargain-hunting culture. Street energy peaks in the late afternoon.',
     xPercent: 45,
     yPercent: 55,
+    lat: 22.3306380153273,
+    lng: 114.1614313875081,
+    mediaType: 'audio',
     liveViewUrl:
       'https://www.google.com/maps/embed?pb=!4v1777212786047!6m8!1m7!1sD9mL7U5ZhuyTBDHiMT64Nw!2m2!1d22.3306380153273!2d114.1614313875081!3f177.2243685499552!4f-13.780646924590911!5f0.7820865974627469',
     liveViewType: 'embed',
@@ -30,6 +33,9 @@ export const mapLocations: MapLocation[] = [
       'A nostalgic strip packed with wholesale and retail toy shops. You will see hanging model kits, balloons, and old-school childhood favorites.',
     xPercent: 58,
     yPercent: 48,
+    lat: 22.33112339145579,
+    lng: 114.1638407545747,
+    mediaType: 'image',
     liveViewUrl:
       'https://www.google.com/maps/embed?pb=!4v1777212568220!6m8!1m7!1s4jNZkPbKUQ6drRTVqHuotA!2m2!1d22.33112339145579!2d114.1638407545747!3f165.1436506355563!4f-15.504562039760387!5f0.9220703631491821',
     liveViewType: 'embed',
@@ -45,6 +51,9 @@ export const mapLocations: MapLocation[] = [
       'Traditional wet market atmosphere with fishmongers, produce stalls, and constant movement. Best experienced in morning and lunchtime hours.',
     xPercent: 40,
     yPercent: 64,
+    lat: 22.32981148560473,
+    lng: 114.160764273546,
+    mediaType: 'audio',
     liveViewUrl:
       'https://www.google.com/maps/embed?pb=!4v1777212962072!6m8!1m7!1slAyMt1UKMahv98dp-fcGCQ!2m2!1d22.32981148560473!2d114.160764273546!3f222.7587132033819!4f-9.227065176235584!5f0.7820865974627469',
     liveViewType: 'embed',
@@ -61,6 +70,9 @@ export const mapLocations: MapLocation[] = [
       'A landmark tech destination for gamers and PC builders, with dense rows of stores and a distinct electronic buzz at the entrance.',
     xPercent: 52,
     yPercent: 40,
+    lat: 22.33231613044541,
+    lng: 114.161532352588,
+    mediaType: 'video',
     liveViewUrl:
       'https://www.google.com/maps/embed?pb=!4v1777206777462!6m8!1m7!1svydMmWM7zRMF_N794J0gwQ!2m2!1d22.33231613044541!2d114.161532352588!3f133.9147411491499!4f6.028556321434365!5f0.7820865974627469',
     liveViewType: 'embed',

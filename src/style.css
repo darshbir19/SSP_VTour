@@ -29,6 +29,296 @@ button {
   animation: fade-in 500ms ease-out both;
 }
 
+.leaflet-container {
+  font-family: 'Montserrat', system-ui, sans-serif;
+}
+
+.leaflet-tile-pane {
+  filter: contrast(1.12) saturate(0.92);
+}
+
+.leaflet-media-marker-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.leaflet-media-marker {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  height: 54px;
+  justify-items: center;
+  padding: 0;
+  position: relative;
+  transform: translateY(0) scale(1);
+  transition: transform 180ms ease;
+  width: 42px;
+}
+
+.leaflet-media-marker-glow {
+  background: rgba(220, 38, 38, 0.28);
+  border-radius: 999px;
+  filter: blur(4px);
+  height: 42px;
+  position: absolute;
+  top: 5px;
+  transition: opacity 180ms ease, transform 180ms ease;
+  width: 42px;
+}
+
+.leaflet-media-marker-pin {
+  align-items: center;
+  background: #dc2626;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 999px 999px 999px 0;
+  box-shadow: 0 10px 22px rgba(31, 41, 55, 0.35);
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  position: relative;
+  transform: rotate(-45deg);
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  width: 34px;
+}
+
+.leaflet-media-marker-hover,
+.leaflet-media-marker:hover,
+.leaflet-media-marker-active {
+  transform: translateY(-4px) scale(1.1);
+}
+
+.leaflet-media-marker-hover .leaflet-media-marker-glow,
+.leaflet-media-marker:hover .leaflet-media-marker-glow,
+.leaflet-media-marker-active .leaflet-media-marker-glow {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.leaflet-media-marker-hover .leaflet-media-marker-pin,
+.leaflet-media-marker:hover .leaflet-media-marker-pin,
+.leaflet-media-marker-active .leaflet-media-marker-pin {
+  box-shadow: 0 14px 30px rgba(31, 41, 55, 0.42);
+}
+
+.leaflet-media-marker-dot {
+  background: #ffffff;
+  border-radius: 999px;
+  display: block;
+  height: 10px;
+  width: 10px;
+}
+
+.leaflet-user-marker-wrapper {
+  background: transparent;
+  border: 0;
+}
+
+.leaflet-user-marker {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: grid;
+  height: 38px;
+  justify-items: center;
+  padding: 0;
+  position: relative;
+  transform: scale(1);
+  transition: transform 180ms ease;
+  width: 38px;
+}
+
+.leaflet-user-marker-glow {
+  background: rgba(37, 99, 235, 0.3);
+  border-radius: 999px;
+  filter: blur(4px);
+  height: 38px;
+  position: absolute;
+  transition: transform 180ms ease;
+  width: 38px;
+}
+
+.leaflet-user-marker-icon {
+  align-items: center;
+  background: #2563eb;
+  border: 2px solid rgba(255, 255, 255, 0.94);
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(31, 41, 55, 0.35);
+  color: #ffffff;
+  display: flex;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  height: 30px;
+  justify-content: center;
+  line-height: 1;
+  position: relative;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+  width: 30px;
+}
+
+.leaflet-user-marker:hover {
+  transform: translateY(-3px) scale(1.12);
+}
+
+.leaflet-user-marker:hover .leaflet-user-marker-glow {
+  transform: scale(1.2);
+}
+
+.leaflet-user-marker:hover .leaflet-user-marker-icon {
+  box-shadow: 0 14px 30px rgba(31, 41, 55, 0.42);
+}
+
+.leaflet-popup-content-wrapper {
+  background: #fdfaf6;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.5rem;
+  box-shadow:
+    0 28px 70px rgba(31, 41, 55, 0.2),
+    0 8px 18px rgba(31, 41, 55, 0.1);
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+}
+
+.leaflet-popup-tip {
+  background: #fdfaf6;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.leaflet-popup-close-button {
+  color: #6b7280;
+  font-size: 20px;
+  padding: 0.65rem 0.8rem;
+  transition: color 160ms ease;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #b45309;
+}
+
+.leaflet-media-popup {
+  color: #1f2937;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.leaflet-media-popup-type {
+  color: #b45309;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.leaflet-media-popup h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0.35rem 1.25rem 0.35rem 0;
+}
+
+.leaflet-media-popup p {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0 0 0.75rem;
+}
+
+.leaflet-media-popup-audio {
+  width: 100%;
+}
+
+.leaflet-media-popup-preview {
+  aspect-ratio: 16 / 10;
+  background: #f3f4f6;
+  border: 0;
+  border-radius: 0.75rem;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.leaflet-contribution-popup {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(245, 158, 11, 0.14), transparent 32%),
+    #fdfaf6;
+  color: #1f2937;
+  overflow: hidden;
+  padding: 1.1rem;
+  max-width: calc(100vw - 64px);
+  width: min(68vw, 300px);
+}
+
+.leaflet-contribution-popup-header {
+  border-left: 2px solid #f59e0b;
+  margin-bottom: 0.85rem;
+  padding-left: 0.85rem;
+}
+
+.leaflet-contribution-popup-kicker {
+  color: #b45309;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  margin: 0 1.5rem 0.35rem 0;
+  text-transform: uppercase;
+}
+
+.leaflet-contribution-popup h3 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0 1.5rem 0.45rem 0;
+}
+
+.leaflet-contribution-popup-description {
+  color: #6b7280;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.55;
+  margin: 0.85rem 0 0;
+}
+
+.leaflet-contribution-popup .leaflet-contribution-popup-place {
+  color: #6b7280;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.leaflet-contribution-popup-media {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: #f5f1e8;
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.12);
+}
+
+.leaflet-contribution-popup-audio {
+  display: block;
+  padding: 0.75rem;
+  width: 100%;
+}
+
+.leaflet-contribution-popup-preview {
+  aspect-ratio: 16 / 10;
+  background: #f5f1e8;
+  border: 0;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

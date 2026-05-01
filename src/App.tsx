@@ -10,6 +10,7 @@ export function App() {
   const mapSectionRef = useRef<HTMLElement | null>(null)
   const [locationDetailOpen, setLocationDetailOpen] = useState(false)
   const [contributeOpen, setContributeOpen] = useState(false)
+  const [submissionRefreshKey, setSubmissionRefreshKey] = useState(0)
 
   const handleBackToHome = () => {
     setLocationDetailOpen(false)
@@ -27,7 +28,8 @@ export function App() {
             onClick={() => setContributeOpen(true)}
             className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-xs text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:min-w-10 sm:text-sm"
           >
-            Contribute
+            <span aria-hidden="true">📍</span>
+            <span>Contribute</span>
           </button>
           <LanguageSwitcher />
         </div>
@@ -39,7 +41,11 @@ export function App() {
           <HomePage onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })} />
         </section>
         <section ref={mapSectionRef} className="min-h-screen w-full">
-          <MapTour onBackToHome={handleBackToHome} onLocationViewChange={setLocationDetailOpen} />
+          <MapTour
+            onBackToHome={handleBackToHome}
+            onLocationViewChange={setLocationDetailOpen}
+            submissionRefreshKey={submissionRefreshKey}
+          />
         </section>
 
         {contributeOpen && (
@@ -53,7 +59,7 @@ export function App() {
               >
                 ✕
               </button>
-              <ContributionForm />
+              <ContributionForm onSubmitted={() => setSubmissionRefreshKey((key) => key + 1)} />
             </div>
           </div>
         )}

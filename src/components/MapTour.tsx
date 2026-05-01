@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import L, { type LatLngBoundsExpression, type LatLngExpression, type LayerGroup, type Map as LeafletMap } from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { mapLocations } from '../data/mapLocations'
+import { isSupabaseConfigured, supabase, type SubmissionRow } from '../lib/supabase'
 import type { MapLocation } from '../types/mapLocation'
 import { GoogleStreetView } from './GoogleStreetView'
 import { TimelineScroll, type TimelineItem } from './TimelineScroll'
@@ -8,61 +11,23 @@ import timelineImage1980 from '../assets/1.jpg'
 import timelineImage2000 from '../assets/2.jpg'
 import timelineImage2025 from '../assets/3.png'
 
-const TILE_SIZE = 256
-const TILE_GRID = 4
-const TILE_ZOOM = 18
-const SSP_CENTER = { lat: 22.3312, lon: 114.1634 }
-const HK_IMAGERY_TILE_URL =
-  'https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/imagery/WGS84/{z}/{x}/{y}.png'
-
-interface TileCoord {
-  x: number
-  y: number
-  key: string
-  url: string
-}
-
-function lon2tileX(lon: number, zoom: number) {
-  return Math.floor(((lon + 180) / 360) * 2 ** zoom)
-}
-
-function lat2tileY(lat: number, zoom: number) {
-  const latRad = (lat * Math.PI) / 180
-  return Math.floor(((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * 2 ** zoom)
-}
-
-function makeTileUrl(z: number, x: number, y: number) {
-  return HK_IMAGERY_TILE_URL.replace('{z}', String(z)).replace('{x}', String(x)).replace('{y}', String(y))
-}
-
-function buildShamShuiPoTiles(): TileCoord[] {
-  const centerX = lon2tileX(SSP_CENTER.lon, TILE_ZOOM)
-  const centerY = lat2tileY(SSP_CENTER.lat, TILE_ZOOM)
-  const half = Math.floor(TILE_GRID / 2)
-  const tiles: TileCoord[] = []
-
-  for (let row = 0; row < TILE_GRID; row += 1) {
-    for (let col = 0; col < TILE_GRID; col += 1) {
-      const x = centerX - half + col
-      const y = centerY - half + row
-      tiles.push({
-        x: col,
-        y: row,
-        key: `${TILE_ZOOM}-${x}-${y}`,
-        url: makeTileUrl(TILE_ZOOM, x, y),
-      })
-    }
-  }
-
-  return tiles
-}
-
-const shamShuiPoTiles = buildShamShuiPoTiles()
 type LocalizedText = { en: string; zh: string; hi: string }
+
+const SSP_CENTER: LatLngExpression = [22.3312, 114.1634]
+const SSP_BOUNDS: LatLngBoundsExpression = [
+  [22.3258, 114.1553],
+  [22.3372, 114.1711],
+]
+const SSP_LEAFLET_BOUNDS = L.latLngBounds(SSP_BOUNDS)
+const ESRI_WORLD_IMAGERY_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+const CARTO_OSM_LABEL_TILE_URL =
+  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'
 
 interface MapTourProps {
   onBackToHome?: () => void
   onLocationViewChange?: (open: boolean) => void
+  submissionRefreshKey?: number
 }
 
 const goldenTimelineItems: TimelineItem[] = [
@@ -94,7 +59,7 @@ const locationTimelineItems: Record<string, TimelineItem[]> = {
   apliu: [
     {
       year: '2025',
-      title: 'Wrapped in Transition - Gentrification',
+      title: 'In Transition — Gentrification',
       image: '/images/Apliu_2025.jpg',
       text: 'In the background, buildings are stripped and rebuilt behind layers of scaffolding. What looks like maintenance signals something deeper—rising values, shifting ownership, and a slow redefinition of the neighborhood. The streets remain familiar, still full of movement, routine, and everyday life. Even as the foundations shift, the place holds on to its character—for now.',
       imageLabel: 'Now',
@@ -125,7 +90,7 @@ const locationTimelineItems: Record<string, TimelineItem[]> = {
     {
       year: '2005',
       title: 'A Market of Regulars',
-      image: timelineImage2000,
+      image: '/images/Wet_Market_2000.png',
       text: 'By the 2000s, the market was already shaped by familiar exchanges between vendors and returning customers. Price, freshness, trust, and habit all helped define the rhythm of the place.',
       imageLabel: '2005',
     },
@@ -148,14 +113,14 @@ const locationTimelineItems: Record<string, TimelineItem[]> = {
     {
       year: '2005',
       title: 'Wholesale Play Culture',
-      image: timelineImage2000,
+      image: '/images/toy2005.jpg',
       text: 'By the 2000s, Fuk Wing Street was known for toy wholesalers and small shops where school supplies, party goods, and novelty items mixed together. The street became a place where play, commerce, and memory overlapped.',
       imageLabel: '2005',
     },
     {
       year: '1980',
       title: 'Small Shops and Childhood Memory',
-      image: timelineImage2025,
+      image: '/images/Toy_80.png',
       text: 'Earlier toy shopping was remembered through crowded storefronts, simple displays, and the excitement of looking even when nothing was bought. The street carried a sense of discovery through small, affordable objects.',
       imageLabel: 'Archive memory',
     },
@@ -654,31 +619,360 @@ const locationLocalized: Record<
   },
 }
 
-export function MapTour({ onBackToHome, onLocationViewChange }: MapTourProps) {
+function createLocationMarkerElement(label: string) {
+  const marker = document.createElement('button')
+  marker.type = 'button'
+  marker.className = 'leaflet-media-marker'
+  marker.setAttribute('aria-label', label)
+  marker.innerHTML = `
+    <span class="leaflet-media-marker-glow"></span>
+    <span class="leaflet-media-marker-pin">
+      <span class="leaflet-media-marker-dot"></span>
+    </span>
+  `
+  return marker
+}
+
+function createContributionMarkerElement(label: string) {
+  const marker = document.createElement('button')
+  marker.type = 'button'
+  marker.className = 'leaflet-user-marker'
+  marker.setAttribute('aria-label', label)
+  marker.innerHTML = `
+    <span class="leaflet-user-marker-glow"></span>
+    <span class="leaflet-user-marker-icon">+</span>
+  `
+  return marker
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+function getSubmissionMediaType(url: string) {
+  const cleanUrl = url.split('?')[0].toLowerCase()
+  const extension = cleanUrl.split('.').pop() ?? ''
+
+  if (cleanUrl.includes('/audio/')) return 'audio'
+  if (cleanUrl.includes('/video/')) return 'video'
+  if (cleanUrl.includes('/image/')) return 'image'
+  if (['mp4', 'webm', 'mov', 'm4v'].includes(extension)) return 'video'
+  if (['mp3', 'wav', 'm4a', 'aac', 'flac', 'oga', 'ogg'].includes(extension)) return 'audio'
+  return 'image'
+}
+
+function buildContributionPopupHtml(submission: SubmissionRow) {
+  const safeTitle = escapeHtml(submission.title)
+  const safeDescription = submission.description ? escapeHtml(submission.description) : ''
+  const safeMediaUrl = escapeHtml(submission.image_url)
+  const mediaType = getSubmissionMediaType(submission.image_url)
+
+  const mediaHtml =
+    mediaType === 'video'
+      ? `<video class="leaflet-contribution-popup-preview" controls playsinline src="${safeMediaUrl}"></video>`
+      : mediaType === 'audio'
+        ? `<audio class="leaflet-contribution-popup-audio" controls preload="none" src="${safeMediaUrl}"></audio>`
+        : `<img class="leaflet-contribution-popup-preview" src="${safeMediaUrl}" alt="${safeTitle}" />`
+
+  return `
+    <article class="leaflet-contribution-popup">
+      <div class="leaflet-contribution-popup-header">
+        <h3>${safeTitle}</h3>
+      </div>
+      ${safeDescription ? `<p class="leaflet-contribution-popup-description">${safeDescription}</p>` : ''}
+      <div class="leaflet-contribution-popup-media">
+        ${mediaHtml}
+      </div>
+    </article>
+  `
+}
+
+function resolveSubmissionCoordinates(submission: SubmissionRow) {
+  if (
+    typeof submission.latitude === 'number' &&
+    typeof submission.longitude === 'number' &&
+    SSP_LEAFLET_BOUNDS.contains([submission.latitude, submission.longitude])
+  ) {
+    return {
+      id: submission.id,
+      lat: submission.latitude,
+      lng: submission.longitude,
+    }
+  }
+  return null
+}
+
+function getContributionOffset(index: number, total: number) {
+  if (total <= 1) return { lat: 0, lng: 0 }
+
+  const angle = (Math.PI * 2 * index) / total
+  const radius = 0.00008 + Math.floor(index / 8) * 0.000035
+  return {
+    lat: Math.sin(angle) * radius,
+    lng: Math.cos(angle) * radius,
+  }
+}
+
+interface ShamShuiPoLeafletMapProps {
+  activeId: string
+  language: 'en' | 'zh' | 'hi'
+  locations: MapLocation[]
+  submissions: SubmissionRow[]
+  getLocationName: (location: MapLocation) => string
+  onLocationSelect: (locationId: string) => void
+}
+
+function ShamShuiPoLeafletMap({
+  activeId,
+  language,
+  locations,
+  submissions,
+  getLocationName,
+  onLocationSelect,
+}: ShamShuiPoLeafletMapProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const mapRef = useRef<LeafletMap | null>(null)
+  const markerLayerRef = useRef<LayerGroup | null>(null)
+  const contributionLayerRef = useRef<LayerGroup | null>(null)
+  const markerElementRefs = useRef<Record<string, HTMLElement>>({})
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return undefined
+
+    const map = L.map(containerRef.current, {
+      center: SSP_CENTER,
+      zoom: 17,
+      minZoom: 15,
+      maxZoom: 19,
+      maxBounds: SSP_BOUNDS,
+      maxBoundsViscosity: 0.7,
+      zoomControl: false,
+    })
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map)
+    map.createPane('satellitePane')
+    const satellitePane = map.getPane('satellitePane')
+    if (satellitePane) {
+      satellitePane.style.zIndex = '200'
+    }
+
+    map.createPane('labelPane')
+    const labelPane = map.getPane('labelPane')
+    if (labelPane) {
+      labelPane.style.zIndex = '450'
+      labelPane.style.pointerEvents = 'none'
+    }
+
+    L.tileLayer(ESRI_WORLD_IMAGERY_URL, {
+      pane: 'satellitePane',
+      maxZoom: 19,
+      attribution:
+        'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+    }).addTo(map)
+    L.tileLayer(CARTO_OSM_LABEL_TILE_URL, {
+      pane: 'labelPane',
+      maxZoom: 20,
+      subdomains: 'abcd',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    }).addTo(map)
+
+    mapRef.current = map
+    window.requestAnimationFrame(() => map.invalidateSize())
+
+    return () => {
+      markerLayerRef.current?.remove()
+      contributionLayerRef.current?.remove()
+      markerLayerRef.current = null
+      contributionLayerRef.current = null
+      markerElementRefs.current = {}
+      map.remove()
+      mapRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return undefined
+
+    markerLayerRef.current?.remove()
+    markerElementRefs.current = {}
+    const markerLayer = L.layerGroup().addTo(map)
+    markerLayerRef.current = markerLayer
+
+    locations.forEach((location) => {
+      const label = getLocationName(location)
+      const markerElement = createLocationMarkerElement(label)
+      markerElementRefs.current[location.id] = markerElement
+      markerElement.classList.toggle('leaflet-media-marker-active', location.id === activeId)
+
+      const icon = L.divIcon({
+        className: 'leaflet-media-marker-wrapper',
+        html: markerElement.outerHTML,
+        iconSize: [42, 54],
+        iconAnchor: [21, 50],
+        popupAnchor: [0, -46],
+      })
+
+      const marker = L.marker([location.lat, location.lng], {
+        icon,
+        title: label,
+        keyboard: true,
+      })
+        .addTo(markerLayer)
+
+      const syncMarkerElement = () => {
+        const element = marker.getElement()?.querySelector<HTMLElement>('.leaflet-media-marker')
+        if (!element) return
+        markerElementRefs.current[location.id] = element
+        element.classList.toggle('leaflet-media-marker-active', location.id === activeId)
+      }
+
+      marker.on('add', syncMarkerElement)
+      marker.on('click', () => {
+        onLocationSelect(location.id)
+      })
+
+      syncMarkerElement()
+    })
+
+    return () => {
+      markerLayer.remove()
+      if (markerLayerRef.current === markerLayer) {
+        markerLayerRef.current = null
+      }
+      markerElementRefs.current = {}
+    }
+  }, [getLocationName, language, locations, onLocationSelect])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return undefined
+
+    contributionLayerRef.current?.remove()
+    const contributionLayer = L.layerGroup().addTo(map)
+    contributionLayerRef.current = contributionLayer
+
+    const groupedSubmissions = new Map<string, Array<{ submission: SubmissionRow; lat: number; lng: number }>>()
+    submissions.forEach((submission) => {
+      const coordinates = resolveSubmissionCoordinates(submission)
+      if (!coordinates) return
+
+      const coordinateKey = `${coordinates.lat.toFixed(5)},${coordinates.lng.toFixed(5)}`
+      const existing = groupedSubmissions.get(coordinateKey) ?? []
+      existing.push({ submission, lat: coordinates.lat, lng: coordinates.lng })
+      groupedSubmissions.set(coordinateKey, existing)
+    })
+
+    groupedSubmissions.forEach((locationSubmissions) => {
+      locationSubmissions.forEach(({ submission, lat, lng }, index) => {
+        const offset = getContributionOffset(index, locationSubmissions.length)
+        const markerElement = createContributionMarkerElement(submission.title)
+        const icon = L.divIcon({
+          className: 'leaflet-user-marker-wrapper',
+          html: markerElement.outerHTML,
+          iconSize: [38, 38],
+          iconAnchor: [19, 19],
+          popupAnchor: [0, -18],
+        })
+
+        L.marker([lat + offset.lat, lng + offset.lng], {
+          icon,
+          title: submission.title,
+          keyboard: true,
+          zIndexOffset: 1000 + index,
+        })
+          .addTo(contributionLayer)
+          .bindPopup(buildContributionPopupHtml(submission), {
+            className: 'leaflet-contribution-popup-shell',
+            autoPan: true,
+            autoPanPadding: [24, 24],
+            keepInView: true,
+            maxWidth: 300,
+            minWidth: 220,
+          })
+      })
+    })
+
+    return () => {
+      contributionLayer.remove()
+      if (contributionLayerRef.current === contributionLayer) {
+        contributionLayerRef.current = null
+      }
+    }
+  }, [submissions])
+
+  useEffect(() => {
+    Object.entries(markerElementRefs.current).forEach(([locationId, markerElement]) => {
+      markerElement.classList.toggle('leaflet-media-marker-active', locationId === activeId)
+    })
+  }, [activeId])
+
+  return <div ref={containerRef} className="absolute inset-0" aria-label="Leaflet Sham Shui Po media map" />
+}
+
+export function MapTour({
+  onBackToHome,
+  onLocationViewChange,
+  submissionRefreshKey = 0,
+}: MapTourProps) {
   const { language } = useLanguage()
   const [activeId, setActiveId] = useState<string>(mapLocations[0].id)
   const [view, setView] = useState<'map' | 'location'>('map')
-  const [loadedTiles, setLoadedTiles] = useState(0)
+  const [submissions, setSubmissions] = useState<SubmissionRow[]>([])
 
   useEffect(() => {
     onLocationViewChange?.(view === 'location')
   }, [onLocationViewChange, view])
 
+  useEffect(() => {
+    if (!supabase || !isSupabaseConfigured) {
+      setSubmissions([])
+      return
+    }
+
+    const client = supabase
+    let cancelled = false
+
+    const fetchSubmissions = async () => {
+      const { data, error } = await client
+        .from('submissions')
+        .select('id, title, description, image_url, place_name, latitude, longitude, created_at')
+        .order('created_at', { ascending: false })
+
+      if (cancelled) return
+      if (error) {
+        console.warn('[MapTour] Failed to load submissions:', error.message)
+        return
+      }
+
+      setSubmissions((data ?? []) as SubmissionRow[])
+    }
+
+    void fetchSubmissions()
+
+    return () => {
+      cancelled = true
+    }
+  }, [submissionRefreshKey])
+
   const mapCopy = {
     en: {
-      title: 'Real Sham Shui Po map · Click a pin',
-      loading: 'Loading Sham Shui Po map...',
-      dataAttribution: 'Map data © Lands Department, HKSAR',
+      title: 'Sham Shui Po media map · Click a pin',
+      dataAttribution: 'Leaflet · Esri satellite imagery with OpenStreetMap street labels',
     },
     zh: {
-      title: '真实深水埗地图 · 点击标记',
-      loading: '正在加载深水埗地图...',
-      dataAttribution: '地图数据 © 香港地政总署',
+      title: '深水埗媒體地圖 · 點擊標記',
+      dataAttribution: 'Leaflet · Esri 衛星影像與 OpenStreetMap 街道標籤',
     },
     hi: {
-      title: 'रियल शाम शुई पो मैप · पिन पर क्लिक करें',
-      loading: 'शाम शुई पो मैप लोड हो रहा है...',
-      dataAttribution: 'मैप डेटा © Lands Department, HKSAR',
+      title: 'शाम शुई पो मीडिया मैप · पिन पर क्लिक करें',
+      dataAttribution: 'Leaflet · Esri satellite imagery और OpenStreetMap सड़क लेबल',
     },
   }[language]
 
@@ -686,9 +980,17 @@ export function MapTour({ onBackToHome, onLocationViewChange }: MapTourProps) {
     () => mapLocations.find((location) => location.id === activeId) ?? mapLocations[0],
     [activeId],
   )
-  const getLocationName = (location: MapLocation) =>
-    (locationLocalized[location.id]?.name[language] ??
-      (language === 'zh' ? location.nameZh : location.nameEn))
+  const getLocationName = useCallback(
+    (location: MapLocation) =>
+      (locationLocalized[location.id]?.name[language] ??
+        (language === 'zh' ? location.nameZh : location.nameEn)),
+    [language],
+  )
+
+  const handleLocationSelect = useCallback((locationId: string) => {
+    setActiveId(locationId)
+    setView('location')
+  }, [])
 
   if (view === 'location') {
     return (
@@ -706,76 +1008,19 @@ export function MapTour({ onBackToHome, onLocationViewChange }: MapTourProps) {
   return (
     <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#f5f1e8] text-[#1f2937]">
       <section className="absolute inset-0 overflow-hidden bg-[#fdfaf6]">
-          <div className="absolute inset-0 grid transition-transform duration-700" style={{ gridTemplateColumns: `repeat(${TILE_GRID}, 1fr)`, gridTemplateRows: `repeat(${TILE_GRID}, 1fr)` }}>
-            {shamShuiPoTiles.map((tile) => (
-              <img
-                key={tile.key}
-                src={tile.url}
-                alt=""
-                loading="eager"
-                onLoad={() => setLoadedTiles((n) => n + 1)}
-                className="h-full w-full object-cover"
-                style={{
-                  gridColumnStart: tile.x + 1,
-                  gridRowStart: tile.y + 1,
-                  imageRendering: 'auto',
-                }}
-              />
-            ))}
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(180,83,9,0.14),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(120,113,108,0.12),transparent_36%)]" />
-          {mapLocations.map((location) => {
-            const active = activeId === location.id
-            return (
-              <button
-                key={location.id}
-                onClick={() => {
-                  setActiveId(location.id)
-                  setView('location')
-                }}
-                className="group absolute flex -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-all duration-300 hover:scale-105"
-                style={{ left: `${location.xPercent}%`, top: `${location.yPercent}%` }}
-                aria-label={location.nameEn}
-              >
-                <span className={`absolute inline-flex h-9 w-9 rounded-full bg-amber-500/25 blur-md transition-opacity ${
-                  active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                }`} />
-                <svg
-                  viewBox="0 0 24 24"
-                  className={`h-8 w-8 drop-shadow-[0_0_10px_rgba(0,0,0,0.55)] transition-all duration-300 ${
-                    active
-                      ? 'scale-110 drop-shadow-[0_0_14px_rgba(180,83,9,0.35)]'
-                      : 'group-hover:scale-110 group-hover:drop-shadow-[0_0_14px_rgba(180,83,9,0.3)]'
-                  }`}
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12 2C7.58 2 4 5.58 4 10c0 5.33 6.22 11.49 7.08 12.32a1.3 1.3 0 0 0 1.84 0C13.78 21.49 20 15.33 20 10c0-4.42-3.58-8-8-8z"
-                    fill="#b45309"
-                  />
-                  <circle cx="12" cy="10" r="3" fill="#ffffff" />
-                </svg>
-                <span className="pointer-events-none mt-2 block rounded-xl border border-[#e5e7eb] bg-[#fdfaf6]/95 px-2 py-1 text-[11px] text-[#1f2937] opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  {getLocationName(location)}
-                </span>
-              </button>
-            )
-          })}
-
-          <a
-            className="absolute bottom-3 right-3 z-10 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6]/85 px-3 py-1.5 text-[10px] text-[#6b7280] underline underline-offset-2 backdrop-blur transition-all duration-300 hover:text-[#1f2937]"
-            href="https://geodata.gov.hk/gs/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            {mapCopy.dataAttribution}
-          </a>
-
-          {loadedTiles === 0 && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#fdfaf6]/90 text-sm text-[#6b7280]">
-              {mapCopy.loading}
-            </div>
-          )}
+        <ShamShuiPoLeafletMap
+          activeId={activeId}
+          language={language}
+          locations={mapLocations}
+          submissions={submissions}
+          getLocationName={getLocationName}
+          onLocationSelect={handleLocationSelect}
+        />
+        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(180,83,9,0.08),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(120,113,108,0.08),transparent_36%)]" />
+        <div className="pointer-events-none absolute left-4 top-24 z-20 max-w-[calc(100%-2rem)] rounded-2xl border border-white/50 bg-[#fdfaf6]/90 px-4 py-3 text-[#1f2937] shadow-sm backdrop-blur sm:left-8">
+          <p className="text-xs font-semibold tracking-widest text-amber-700 uppercase">{mapCopy.title}</p>
+          <p className="mt-1 text-[11px] text-[#6b7280]">{mapCopy.dataAttribution}</p>
+        </div>
       </section>
 
     </div>

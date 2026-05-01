@@ -14,7 +14,10 @@ export type SubmissionRow = {
   title: string
   description: string | null
   image_url: string
-  year: string | null
-  location: string | null
+  year?: string | null
+  location?: string | null
+  place_name?: string | null
+  latitude?: number | null
+  longitude?: number | null
   created_at: string
 }

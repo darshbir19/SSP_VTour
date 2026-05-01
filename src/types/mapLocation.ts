@@ -7,6 +7,9 @@ export interface MapLocation {
   detailsEn: string
   xPercent: number
   yPercent: number
+  lat: number
+  lng: number
+  mediaType?: 'audio' | 'video' | 'image'
   liveViewUrl: string
   liveViewType: 'image' | 'video' | 'embed'
   soundscapeUrl: string
