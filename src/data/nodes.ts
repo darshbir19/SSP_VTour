@@ -205,6 +205,16 @@ export const nodes: ExperienceNode[] = [
     ambientLoopUrl: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
     audioSources: [
       {
+        id: 'golden-sales-pitch',
+        label: 'Sales pitch voices',
+        labelZh: '銷售叫賣聲',
+        url: '/audio/bargaining-sound.m4a',
+        position: [3, 1, -2],
+        refDistance: 2.5,
+        rolloffFactor: 1.2,
+        volume: 0.7,
+      },
+      {
         id: 'golden-fans',
         label: 'PC fans whirring',
         labelZh: '電腦風扇嗡嗡聲',

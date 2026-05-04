@@ -23,6 +23,190 @@ const ESRI_WORLD_IMAGERY_URL =
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
 const CARTO_OSM_LABEL_TILE_URL =
   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'
+const SHOW_CONTRIBUTION_MARKERS = true
+
+const STATIC_CONTRIBUTIONS: SubmissionRow[] = [
+  {
+    id: 'local-wheel-cart-driving',
+    title: 'Wheel Cart Driving',
+    description: 'Fuk Wa Street',
+    image_url: '/audio/wheel-cart-driving.m4a',
+    place_name: 'Fuk Wa Street',
+    latitude: 22.33081,
+    longitude: 114.16327,
+    created_at: '2026-05-05T00:00:00.000Z',
+  },
+  {
+    id: 'fieldtrip-01',
+    title: 'Apliu Street Stall Front',
+    description: 'A close street-level glimpse of everyday trade and display culture in Sham Shui Po.',
+    image_url: '/images/fieldtrip/fieldtrip-01.jpg',
+    place_name: 'Apliu Street',
+    latitude: 22.33045,
+    longitude: 114.1621,
+    created_at: '2026-05-05T00:01:00.000Z',
+  },
+  {
+    id: 'fieldtrip-02',
+    title: 'Fuk Wing Shop Display',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-02.jpg',
+    place_name: 'Fuk Wing Street',
+    latitude: 22.33125,
+    longitude: 114.16385,
+    created_at: '2026-05-05T00:02:00.000Z',
+  },
+  {
+    id: 'fieldtrip-03',
+    title: 'Pei Ho Market Corner',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-03.jpg',
+    place_name: 'Pei Ho Street',
+    latitude: 22.32995,
+    longitude: 114.16095,
+    created_at: '2026-05-05T00:03:00.000Z',
+  },
+  {
+    id: 'fieldtrip-04',
+    title: 'Golden Arcade Entrance',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-04.jpg',
+    place_name: 'Golden Computer Arcade',
+    latitude: 22.3323,
+    longitude: 114.1615,
+    created_at: '2026-05-05T00:04:00.000Z',
+  },
+  {
+    id: 'fieldtrip-05',
+    title: 'Fuk Wa Street Crossing',
+    description: 'Street movement, signage, and shopfronts overlap in a compact neighborhood rhythm.',
+    image_url: '/images/fieldtrip/fieldtrip-05.jpg',
+    place_name: 'Fuk Wa Street',
+    latitude: 22.33081,
+    longitude: 114.16327,
+    created_at: '2026-05-05T00:05:00.000Z',
+  },
+  {
+    id: 'fieldtrip-06',
+    title: 'Sham Shui Po Shop Signs',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-06.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3319,
+    longitude: 114.1646,
+    created_at: '2026-05-05T00:06:00.000Z',
+  },
+  {
+    id: 'fieldtrip-07',
+    title: 'Sidewalk Goods Display',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-07.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3302,
+    longitude: 114.1652,
+    created_at: '2026-05-05T00:07:00.000Z',
+  },
+  {
+    id: 'fieldtrip-08',
+    title: 'Neighborhood Street Texture',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-08.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3327,
+    longitude: 114.1627,
+    created_at: '2026-05-05T00:08:00.000Z',
+  },
+  {
+    id: 'fieldtrip-09',
+    title: 'Field Trip Walkthrough Video',
+    description: 'A moving snapshot captures the pace and density of walking through Sham Shui Po.',
+    image_url: '/videos/fieldtrip/fieldtrip-09.mov',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3291,
+    longitude: 114.1618,
+    created_at: '2026-05-05T00:09:00.000Z',
+  },
+  {
+    id: 'fieldtrip-10',
+    title: 'Market Lane Moment',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-10.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.33155,
+    longitude: 114.1607,
+    created_at: '2026-05-05T00:10:00.000Z',
+  },
+  {
+    id: 'fieldtrip-11',
+    title: 'Street Corner Detail',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-11.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3331,
+    longitude: 114.1641,
+    created_at: '2026-05-05T00:11:00.000Z',
+  },
+  {
+    id: 'fieldtrip-12',
+    title: 'Everyday Shopfront',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-12.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3287,
+    longitude: 114.1599,
+    created_at: '2026-05-05T00:12:00.000Z',
+  },
+  {
+    id: 'fieldtrip-13',
+    title: 'Street-Level Memory',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-13.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3309,
+    longitude: 114.166,
+    created_at: '2026-05-05T00:13:00.000Z',
+  },
+  {
+    id: 'fieldtrip-14',
+    title: 'Jenny Field Trip Photo',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-14.jpeg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.332,
+    longitude: 114.1655,
+    created_at: '2026-05-05T00:14:00.000Z',
+  },
+  {
+    id: 'fieldtrip-15',
+    title: 'Xuyan Field Trip Photo',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-15.jpeg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3296,
+    longitude: 114.1639,
+    created_at: '2026-05-05T00:15:00.000Z',
+  },
+  {
+    id: 'fieldtrip-16',
+    title: 'Onwa Lingsum Field Trip Photo',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-16.jpeg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.331,
+    longitude: 114.1612,
+    created_at: '2026-05-05T00:16:00.000Z',
+  },
+  {
+    id: 'fieldtrip-17',
+    title: 'Kelvin Chan Street Photo',
+    description: null,
+    image_url: '/images/fieldtrip/fieldtrip-17.jpg',
+    place_name: 'Sham Shui Po',
+    latitude: 22.3334,
+    longitude: 114.1602,
+    created_at: '2026-05-05T00:17:00.000Z',
+  },
+]
 
 interface MapTourProps {
   onBackToHome?: () => void
@@ -249,7 +433,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '这些互动突显商业活动中的人际强度，协商与竞争共同塑造这里的体验。',
           hi: 'ये बातचीत व्यापार की मानवीय तीव्रता दिखाती है, जहाँ मोलभाव और प्रतिस्पर्धा अनुभव को आकार देते हैं।',
         },
-        url: '/audio/Test.mp3',
+        url: '/audio/bargaining-sound.m4a',
       },
       {
         id: 'golden-electronic-sounds',
@@ -270,28 +454,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '这些声音代表从维修文化走向持续消费的转变，科技不断被升级与替换。',
           hi: 'ये आवाज़ें रिपेयर संस्कृति से लगातार खपत की ओर बदलाव दिखाती हैं, जहाँ तकनीक बार-बार अपग्रेड और बदली जाती है।',
         },
-        url: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
-      },
-      {
-        id: 'golden-indoor-footsteps',
-        category: 'Environment',
-        icon: '👣',
-        title: {
-          en: 'Dense Indoor Footsteps',
-          zh: '密集室内脚步',
-          hi: 'भीड़भाड़ वाले कदम',
-        },
-        subtitle: {
-          en: 'Tight movement through narrow corridors creates a constant rhythm of footsteps.',
-          zh: '狭窄走廊中的密集脚步，表现电脑商场的拥挤与速度。',
-          hi: 'संकरे गलियारों में कदमों की आवाज़ भीड़ और तेज़ गतिविधि दिखाती है।',
-        },
-        interpretation: {
-          en: 'This density reflects the spatial pressure of indoor marketplaces, where limited space shapes how people move and interact.',
-          zh: '这种密度反映室内市场的空间压力，有限空间影响人们的移动与互动方式。',
-          hi: 'यह घनत्व इनडोर बाज़ारों के स्थानिक दबाव को दिखाता है, जहाँ सीमित जगह लोगों की आवाजाही और बातचीत को आकार देती है।',
-        },
-        url: 'https://cdn.freesound.org/previews/250/250200_4486188-lq.mp3',
+        url: '/audio/computer-arcade.m4a',
       },
       {
         id: 'golden-tech-media',
@@ -312,7 +475,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '这形成破碎而层叠的声音景观，反映现代科技空间中媒体饱和与数字体验重叠。',
           hi: 'यह एक बिखरा हुआ साउंडस्केप बनाता है, जो आधुनिक टेक स्थानों में मीडिया की अधिकता और ओवरलैप होते डिजिटल अनुभवों को दिखाता है।',
         },
-        url: 'https://cdn.freesound.org/previews/354/354563_4748617-lq.mp3',
+        url: '/audio/talking-inside-golden-computer-arcade.m4a',
       },
     ],
   },
@@ -342,7 +505,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '有节奏的叫卖声让街道成为开放市集，并吸引路人靠近摊档。',
           hi: 'तालबद्ध पुकार सड़क बाज़ार की ऊर्जा और स्टॉलों की दिशा बताती है।',
         },
-        url: 'https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3',
+        url: '/audio/kwelin-st-selling-tv.m4a',
       },
       {
         id: 'apliu-bargaining',
@@ -358,7 +521,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '来回讲价体现价格、信任与街头经验之间的互动。',
           hi: 'आगे-पीछे की बातचीत कीमत, भरोसे और स्थानीय ज्ञान को दिखाती है।',
         },
-        url: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
+        url: '/audio/bargaining-sound.m4a',
       },
       {
         id: 'apliu-metal-handling',
@@ -404,7 +567,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '较柔和、重复的售卖声，构成街市日常节奏。',
           hi: 'धीमी दोहराई जाने वाली आवाज़ें रोज़ के बाज़ार की लय बनाती हैं।',
         },
-        url: 'https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3',
+        url: '/audio/pei-ho-wet-market.m4a',
       },
       {
         id: 'pei-ho-food-prep',
@@ -420,7 +583,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '切菜、清洗与处理声，展现街市作为食物基础设施的工作状态。',
           hi: 'काटने, धोने और तैयारी की आवाज़ें बाज़ार को जीवित भोजन प्रणाली बनाती हैं।',
         },
-        url: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
+        url: '/audio/pei-ho-wet-market.m4a',
       },
       {
         id: 'pei-ho-community-chatter',
@@ -436,7 +599,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '较慢的闲谈声呈现居民、档主与熟客之间的长期关系。',
           hi: 'धीमी बातचीत निवासियों, विक्रेताओं और नियमित ग्राहकों के रिश्ते दिखाती है।',
         },
-        url: 'https://cdn.freesound.org/previews/462/462087_8386274-lq.mp3',
+        url: '/audio/pei-ho-wet-market.m4a',
       },
     ],
   },
@@ -447,9 +610,9 @@ const soundscapes: Record<string, LocationSoundscape> = {
       hi: 'खेल और यादों की गूंज',
     },
     description: {
-      en: 'A playful soundscape of toy noises, excited voices, light crowds, and shopfront music that turns retail into childhood memory.',
-      zh: '由玩具聲、興奮人聲、輕微人群與店鋪音樂構成的玩樂聲景，把零售空間轉化為童年記憶。',
-      hi: 'खिलौनों की आवाज़, उत्साहित आवाजें, हल्की भीड़ और दुकान का संगीत मिलकर रिटेल को बचपन की स्मृति में बदलते हैं।',
+      en: 'A playful soundscape of toy noises and excited voices that turns retail into childhood memory.',
+      zh: '由玩具聲與興奮人聲構成的玩樂聲景，把零售空間轉化為童年記憶。',
+      hi: 'खिलौनों की आवाज़ और उत्साहित आवाजें मिलकर रिटेल को बचपन की स्मृति में बदलते हैं।',
     },
     layers: [
       {
@@ -466,7 +629,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '哔声、机械点击与玩乐声，唤起玩具店的感官记忆。',
           hi: 'बीप, क्लिक और खिलौनों की ध्वनियाँ बचपन की यादें जगाती हैं।',
         },
-        url: 'https://cdn.freesound.org/previews/521/521974_7724935-lq.mp3',
+        url: '/audio/toy-1.m4a',
       },
       {
         id: 'fuk-wing-excited-voices',
@@ -482,39 +645,7 @@ const soundscapes: Record<string, LocationSoundscape> = {
           zh: '儿童与兴奋反应，让街道成为发现与小快乐的空间。',
           hi: 'बच्चों और उत्साहित प्रतिक्रियाओं की आवाज़ सड़क को आनंदमय बनाती है।',
         },
-        url: 'https://cdn.freesound.org/previews/415/415209_5121236-lq.mp3',
-      },
-      {
-        id: 'fuk-wing-light-crowd',
-        category: 'Environment',
-        icon: '☰',
-        title: {
-          en: 'Light Crowd Chatter',
-          zh: '轻微人群声',
-          hi: 'हल्की भीड़ की बातचीत',
-        },
-        subtitle: {
-          en: 'Less dense chatter gives Toy Street a lighter, browsing-oriented rhythm.',
-          zh: '较轻的人群声，使玩具街呈现轻松浏览的节奏。',
-          hi: 'हल्की बातचीत खिलौना सड़क को आरामदायक ब्राउज़िंग माहौल देती है।',
-        },
-        url: 'https://cdn.freesound.org/previews/250/250200_4486188-lq.mp3',
-      },
-      {
-        id: 'fuk-wing-cheerful-music',
-        category: 'Digital Layer',
-        icon: '♪',
-        title: {
-          en: 'Cheerful Ambient Music',
-          zh: '轻快环境音乐',
-          hi: 'खुशनुमा पृष्ठभूमि संगीत',
-        },
-        subtitle: {
-          en: 'Subtle music suggests shopfront displays, novelty toys, and the nostalgic mood of childhood retail.',
-          zh: '轻微音乐暗示店铺陈列、新奇玩具与童年零售氛围。',
-          hi: 'हल्का संगीत दुकानों, नए खिलौनों और बचपन की यादों का माहौल बनाता है।',
-        },
-        url: 'https://cdn.freesound.org/previews/354/354563_4748617-lq.mp3',
+        url: '/audio/children-voices-huma.m4a',
       },
     ],
   },
@@ -855,6 +986,9 @@ function ShamShuiPoLeafletMap({
     if (!map) return undefined
 
     contributionLayerRef.current?.remove()
+    contributionLayerRef.current = null
+    if (!SHOW_CONTRIBUTION_MARKERS) return undefined
+
     const contributionLayer = L.layerGroup().addTo(map)
     contributionLayerRef.current = contributionLayer
 
@@ -924,15 +1058,20 @@ export function MapTour({
   const { language } = useLanguage()
   const [activeId, setActiveId] = useState<string>(mapLocations[0].id)
   const [view, setView] = useState<'map' | 'location'>('map')
-  const [submissions, setSubmissions] = useState<SubmissionRow[]>([])
+  const [submissions, setSubmissions] = useState<SubmissionRow[]>(STATIC_CONTRIBUTIONS)
 
   useEffect(() => {
     onLocationViewChange?.(view === 'location')
   }, [onLocationViewChange, view])
 
   useEffect(() => {
-    if (!supabase || !isSupabaseConfigured) {
+    if (!SHOW_CONTRIBUTION_MARKERS) {
       setSubmissions([])
+      return
+    }
+
+    if (!supabase || !isSupabaseConfigured) {
+      setSubmissions(STATIC_CONTRIBUTIONS)
       return
     }
 
@@ -948,10 +1087,11 @@ export function MapTour({
       if (cancelled) return
       if (error) {
         console.warn('[MapTour] Failed to load submissions:', error.message)
+        setSubmissions(STATIC_CONTRIBUTIONS)
         return
       }
 
-      setSubmissions((data ?? []) as SubmissionRow[])
+      setSubmissions([...STATIC_CONTRIBUTIONS, ...((data ?? []) as SubmissionRow[])])
     }
 
     void fetchSubmissions()
@@ -963,16 +1103,13 @@ export function MapTour({
 
   const mapCopy = {
     en: {
-      title: 'Sham Shui Po media map · Click a pin',
-      dataAttribution: 'Leaflet · Esri satellite imagery with OpenStreetMap street labels',
+      backToHome: 'Back to homepage button',
     },
     zh: {
-      title: '深水埗媒體地圖 · 點擊標記',
-      dataAttribution: 'Leaflet · Esri 衛星影像與 OpenStreetMap 街道標籤',
+      backToHome: 'Back to homepage button',
     },
     hi: {
-      title: 'शाम शुई पो मीडिया मैप · पिन पर क्लिक करें',
-      dataAttribution: 'Leaflet · Esri satellite imagery और OpenStreetMap सड़क लेबल',
+      backToHome: 'Back to homepage button',
     },
   }[language]
 
@@ -1017,9 +1154,16 @@ export function MapTour({
           onLocationSelect={handleLocationSelect}
         />
         <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(180,83,9,0.08),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(120,113,108,0.08),transparent_36%)]" />
-        <div className="pointer-events-none absolute left-4 top-24 z-20 max-w-[calc(100%-2rem)] rounded-2xl border border-white/50 bg-[#fdfaf6]/90 px-4 py-3 text-[#1f2937] shadow-sm backdrop-blur sm:left-8">
-          <p className="text-xs font-semibold tracking-widest text-amber-700 uppercase">{mapCopy.title}</p>
-          <p className="mt-1 text-[11px] text-[#6b7280]">{mapCopy.dataAttribution}</p>
+        <div className="pointer-events-auto absolute left-4 top-6 z-[1000] max-w-[calc(100%-2rem)] rounded-2xl border border-white/50 bg-[#fdfaf6]/90 px-4 py-3 text-[#1f2937] shadow-sm backdrop-blur sm:left-8">
+          {onBackToHome && (
+            <button
+              type="button"
+              onClick={onBackToHome}
+              className="inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-sm text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:w-auto"
+            >
+              {mapCopy.backToHome}
+            </button>
+          )}
         </div>
       </section>
 
@@ -1105,7 +1249,7 @@ function LocationPage({
   const locationCopy = {
     en: {
       pageLabel: 'Location Page',
-      backToHome: '← Back to Homepage',
+      backToHome: 'Back to homepage button',
       mute: 'Mute',
       unmute: 'Unmute',
       demoSounds: 'Explore local soundscape',
@@ -1116,7 +1260,7 @@ function LocationPage({
     },
     zh: {
       pageLabel: '地点页面',
-      backToHome: '← 返回主页',
+      backToHome: 'Back to homepage button',
       mute: '静音',
       unmute: '取消静音',
       demoSounds: '探索在地声音景观',
@@ -1127,7 +1271,7 @@ function LocationPage({
     },
     hi: {
       pageLabel: 'लोकेशन पेज',
-      backToHome: '← होमपेज पर वापस जाएं',
+      backToHome: 'Back to homepage button',
       mute: 'म्यूट',
       unmute: 'अनम्यूट',
       demoSounds: 'स्थानीय साउंडस्केप एक्सप्लोर करें',
