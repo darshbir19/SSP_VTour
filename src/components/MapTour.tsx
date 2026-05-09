@@ -1,6 +1,6 @@
 import L, { type LatLngBoundsExpression, type LatLngExpression, type LayerGroup, type Map as LeafletMap } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../context/LanguageContext'
 import { mapLocations } from '../data/mapLocations'
 import { isSupabaseConfigured, supabase, type SubmissionRow } from '../lib/supabase'
@@ -19,10 +19,8 @@ const SSP_BOUNDS: LatLngBoundsExpression = [
   [22.3372, 114.1711],
 ]
 const SSP_LEAFLET_BOUNDS = L.latLngBounds(SSP_BOUNDS)
-const ESRI_WORLD_IMAGERY_URL =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-const CARTO_OSM_LABEL_TILE_URL =
-  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png'
+const CARTO_LIGHT_TILE_URL =
+  'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
 const SHOW_CONTRIBUTION_MARKERS = true
 
 const STATIC_CONTRIBUTIONS: SubmissionRow[] = [
@@ -211,7 +209,11 @@ const STATIC_CONTRIBUTIONS: SubmissionRow[] = [
 interface MapTourProps {
   onBackToHome?: () => void
   onLocationViewChange?: (open: boolean) => void
+  /** Increment from App to reset MapTour from location view back to map (navbar Home, etc.). */
+  navigateHomeSignal?: number
   submissionRefreshKey?: number
+  directLocationId?: string | null
+  directLocationRequestKey?: number
 }
 
 const goldenTimelineItems: TimelineItem[] = [
@@ -756,6 +758,7 @@ function createLocationMarkerElement(label: string) {
   marker.className = 'leaflet-media-marker'
   marker.setAttribute('aria-label', label)
   marker.innerHTML = `
+    <span class="leaflet-media-marker-label">${escapeHtml(label)}</span>
     <span class="leaflet-media-marker-glow"></span>
     <span class="leaflet-media-marker-pin">
       <span class="leaflet-media-marker-dot"></span>
@@ -802,6 +805,10 @@ function buildContributionPopupHtml(submission: SubmissionRow) {
   const safeDescription = submission.description ? escapeHtml(submission.description) : ''
   const safeMediaUrl = escapeHtml(submission.image_url)
   const mediaType = getSubmissionMediaType(submission.image_url)
+  const popupClass =
+    mediaType === 'audio'
+      ? 'leaflet-contribution-popup leaflet-contribution-popup-audio-card'
+      : 'leaflet-contribution-popup'
 
   const mediaHtml =
     mediaType === 'video'
@@ -811,7 +818,7 @@ function buildContributionPopupHtml(submission: SubmissionRow) {
         : `<img class="leaflet-contribution-popup-preview" src="${safeMediaUrl}" alt="${safeTitle}" />`
 
   return `
-    <article class="leaflet-contribution-popup">
+    <article class="${popupClass}">
       <div class="leaflet-contribution-popup-header">
         <h3>${safeTitle}</h3>
       </div>
@@ -886,27 +893,7 @@ function ShamShuiPoLeafletMap({
     })
 
     L.control.zoom({ position: 'bottomright' }).addTo(map)
-    map.createPane('satellitePane')
-    const satellitePane = map.getPane('satellitePane')
-    if (satellitePane) {
-      satellitePane.style.zIndex = '200'
-    }
-
-    map.createPane('labelPane')
-    const labelPane = map.getPane('labelPane')
-    if (labelPane) {
-      labelPane.style.zIndex = '450'
-      labelPane.style.pointerEvents = 'none'
-    }
-
-    L.tileLayer(ESRI_WORLD_IMAGERY_URL, {
-      pane: 'satellitePane',
-      maxZoom: 19,
-      attribution:
-        'Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community',
-    }).addTo(map)
-    L.tileLayer(CARTO_OSM_LABEL_TILE_URL, {
-      pane: 'labelPane',
+    L.tileLayer(CARTO_LIGHT_TILE_URL, {
       maxZoom: 20,
       subdomains: 'abcd',
       attribution:
@@ -945,15 +932,16 @@ function ShamShuiPoLeafletMap({
       const icon = L.divIcon({
         className: 'leaflet-media-marker-wrapper',
         html: markerElement.outerHTML,
-        iconSize: [42, 54],
-        iconAnchor: [21, 50],
-        popupAnchor: [0, -46],
+        iconSize: [200, 88],
+        iconAnchor: [100, 84],
+        popupAnchor: [0, -72],
       })
 
       const marker = L.marker([location.lat, location.lng], {
         icon,
         title: label,
         keyboard: true,
+        zIndexOffset: 5000,
       })
         .addTo(markerLayer)
 
@@ -1053,16 +1041,36 @@ function ShamShuiPoLeafletMap({
 export function MapTour({
   onBackToHome,
   onLocationViewChange,
+  navigateHomeSignal = 0,
   submissionRefreshKey = 0,
+  directLocationId,
+  directLocationRequestKey = 0,
 }: MapTourProps) {
   const { language } = useLanguage()
   const [activeId, setActiveId] = useState<string>(mapLocations[0].id)
   const [view, setView] = useState<'map' | 'location'>('map')
   const [submissions, setSubmissions] = useState<SubmissionRow[]>(STATIC_CONTRIBUTIONS)
+  const lastNavigateHomeSignalRef = useRef(0)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (navigateHomeSignal > lastNavigateHomeSignalRef.current) {
+      lastNavigateHomeSignalRef.current = navigateHomeSignal
+      setView('map')
+      onLocationViewChange?.(false)
+      return
+    }
+
+    if (directLocationId) {
+      const locationExists = mapLocations.some((location) => location.id === directLocationId)
+      if (locationExists) {
+        setActiveId(directLocationId)
+        setView('location')
+        onLocationViewChange?.(true)
+        return
+      }
+    }
     onLocationViewChange?.(view === 'location')
-  }, [onLocationViewChange, view])
+  }, [navigateHomeSignal, directLocationId, directLocationRequestKey, view, onLocationViewChange])
 
   useEffect(() => {
     if (!SHOW_CONTRIBUTION_MARKERS) {
@@ -1103,13 +1111,16 @@ export function MapTour({
 
   const mapCopy = {
     en: {
-      backToHome: 'Back to homepage button',
+      backToHomeAria: 'Go to homepage',
+      homepageLabel: 'Homepage',
     },
     zh: {
-      backToHome: 'Back to homepage button',
+      backToHomeAria: '返回主頁',
+      homepageLabel: '主頁',
     },
     hi: {
-      backToHome: 'Back to homepage button',
+      backToHomeAria: 'होमपेज पर जाएँ',
+      homepageLabel: 'होमपेज',
     },
   }[language]
 
@@ -1131,20 +1142,13 @@ export function MapTour({
 
   if (view === 'location') {
     return (
-      <LocationPage
-        location={activeLocation}
-        language={language}
-        onBackToHome={() => {
-          setView('map')
-          onBackToHome?.()
-        }}
-      />
+      <LocationPage location={activeLocation} language={language} />
     )
   }
 
   return (
-    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#f5f1e8] text-[#1f2937]">
-      <section className="absolute inset-0 overflow-hidden bg-[#fdfaf6]">
+    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#ffffff] text-[#0f172a]">
+      <section className="absolute inset-0 overflow-hidden bg-[#ffffff]">
         <ShamShuiPoLeafletMap
           activeId={activeId}
           language={language}
@@ -1153,16 +1157,43 @@ export function MapTour({
           getLocationName={getLocationName}
           onLocationSelect={handleLocationSelect}
         />
-        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(180,83,9,0.08),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(120,113,108,0.08),transparent_36%)]" />
-        <div className="pointer-events-auto absolute left-4 top-6 z-[1000] max-w-[calc(100%-2rem)] rounded-2xl border border-white/50 bg-[#fdfaf6]/90 px-4 py-3 text-[#1f2937] shadow-sm backdrop-blur sm:left-8">
+        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(37,99,235,0.18),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(219,234,254,0.34),transparent_36%)]" />
+        <div className="pointer-events-none absolute bottom-6 left-4 z-[1000] flex max-w-[min(24rem,calc(100%-2rem))] items-center gap-3 rounded-2xl border border-[#2563eb]/20 bg-white/92 px-5 py-4 text-sm font-semibold leading-relaxed text-[#0f172a] shadow-sm backdrop-blur sm:left-8 sm:text-base">
+          <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-xl font-black leading-none text-white shadow-[0_0_0_6px_rgba(37,99,235,0.16)]">
+            +
+          </span>
+          <span>Click on community contributed media in order to view them.</span>
+        </div>
+        <div className="pointer-events-none absolute top-4 right-4 z-[1000] flex flex-col items-center gap-1 sm:top-6 sm:right-8">
           {onBackToHome && (
-            <button
-              type="button"
-              onClick={onBackToHome}
-              className="inline-flex w-full cursor-pointer items-center justify-center rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-sm text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:w-auto"
-            >
-              {mapCopy.backToHome}
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={onBackToHome}
+                aria-label={mapCopy.backToHomeAria}
+                title={mapCopy.backToHomeAria}
+                className="group pointer-events-auto flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#2563eb]/45 bg-white/92 text-[#2563eb] shadow-[0_14px_40px_rgba(15,23,42,0.14)] backdrop-blur transition duration-300 hover:border-[#2563eb] hover:bg-[#2563eb] hover:text-white hover:shadow-[0_18px_48px_rgba(37,99,235,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+              </button>
+              <span className="pointer-events-none text-center text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[#334155] drop-shadow-sm">
+                {mapCopy.homepageLabel}
+              </span>
+            </>
           )}
         </div>
       </section>
@@ -1174,7 +1205,6 @@ export function MapTour({
 interface LocationPageProps {
   location: MapLocation
   language: 'en' | 'zh' | 'hi'
-  onBackToHome: () => void
 }
 
 interface WaveformProgressBarProps {
@@ -1203,7 +1233,7 @@ function WaveformProgressBar({ progress, currentTime, duration }: WaveformProgre
   const safeProgress = Math.max(0, Math.min(1, progress))
 
   return (
-    <div className="flex w-full items-center gap-2 text-[11px] font-medium tabular-nums text-stone-500/80">
+    <div className="flex w-full items-center gap-2 text-[11px] font-medium tabular-nums text-[#334155]">
       <span className="w-9 text-right">{formatAudioTime(currentTime)}</span>
       <div
         className="relative flex h-8 min-w-0 flex-1 items-center gap-[2px] rounded-full border border-stone-200/80 bg-white/55 px-2"
@@ -1217,7 +1247,7 @@ function WaveformProgressBar({ progress, currentTime, duration }: WaveformProgre
             <span
               key={index}
               className={`w-0.5 flex-1 rounded-full opacity-75 transition-colors duration-150 ${
-                filled ? 'bg-amber-600/60' : 'bg-stone-300/70'
+                filled ? 'bg-[#2563eb]/80' : 'bg-[#ffffff]/30'
               }`}
               style={{ height: `${height}%` }}
             />
@@ -1233,11 +1263,7 @@ function WaveformProgressBar({ progress, currentTime, duration }: WaveformProgre
   )
 }
 
-function LocationPage({
-  location,
-  language,
-  onBackToHome,
-}: LocationPageProps) {
+function LocationPage({ location, language }: LocationPageProps) {
   const [masterVolume, setMasterVolume] = useState(0.8)
   const [muted, setMuted] = useState(false)
   const [activeSoundId, setActiveSoundId] = useState<string | null>(null)
@@ -1249,7 +1275,6 @@ function LocationPage({
   const locationCopy = {
     en: {
       pageLabel: 'Location Page',
-      backToHome: 'Back to homepage button',
       mute: 'Mute',
       unmute: 'Unmute',
       demoSounds: 'Explore local soundscape',
@@ -1260,7 +1285,6 @@ function LocationPage({
     },
     zh: {
       pageLabel: '地点页面',
-      backToHome: 'Back to homepage button',
       mute: '静音',
       unmute: '取消静音',
       demoSounds: '探索在地声音景观',
@@ -1271,7 +1295,6 @@ function LocationPage({
     },
     hi: {
       pageLabel: 'लोकेशन पेज',
-      backToHome: 'Back to homepage button',
       mute: 'म्यूट',
       unmute: 'अनम्यूट',
       demoSounds: 'स्थानीय साउंडस्केप एक्सप्लोर करें',
@@ -1376,89 +1399,275 @@ function LocationPage({
   }
 
   const heroDescription = locationHeroDescriptions[location.id]?.[language] ?? displaySummary
+  const isGoldenComputerArcade = location.id === 'golden'
+  const standardLocationViewClass =
+    'h-full min-h-[320px] w-full transition-transform duration-500 ease-in-out hover:scale-[1.01] sm:min-h-[460px] lg:min-h-[560px]'
+
+  const renderLocationView = (className: string) => {
+    if (location.liveViewType === 'embed') {
+      return (
+        <iframe
+          src={location.liveViewUrl}
+          title={displayName}
+          className={className}
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      )
+    }
+
+    if (location.streetView) {
+      return (
+        <div className={className}>
+          <GoogleStreetView
+            lat={location.streetView.lat}
+            lng={location.streetView.lng}
+            heading={location.streetView.heading}
+            pitch={location.streetView.pitch}
+            zoom={location.streetView.zoom}
+          />
+        </div>
+      )
+    }
+
+    if (location.liveViewType === 'video') {
+      return (
+        <video
+          src={location.liveViewUrl}
+          controls
+          autoPlay
+          muted
+          loop
+          className={`${className} object-cover`}
+        />
+      )
+    }
+
+    return (
+      <img
+        src={location.liveViewUrl}
+        alt={displayName}
+        className={`${className} object-cover`}
+      />
+    )
+  }
+
+  if (isGoldenComputerArcade) {
+    return (
+      <div className="fade-in min-h-screen w-full overflow-auto bg-[#ffffff] text-[#0f172a]">
+        <section className="relative px-4 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12">
+          <div className="relative mx-auto h-[68vh] min-h-[420px] max-w-6xl overflow-hidden rounded-[2rem] border border-[#ffffff]/60 bg-black shadow-[0_28px_70px_rgba(0,0,0,0.34),0_8px_18px_rgba(37,99,235,0.14)]">
+            {renderLocationView('h-full w-full')}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 to-transparent" />
+            <div className="pointer-events-none absolute bottom-5 left-1/2 z-20 -translate-x-1/2 text-center text-[0.64rem] font-semibold uppercase tracking-[0.32em] text-white/80">
+              Scroll to explore
+            </div>
+            <div className="absolute bottom-10 right-4 z-20 flex flex-col gap-2 sm:right-6">
+              <a
+                href="#golden-details"
+                className="rounded-full border border-white/35 bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lg backdrop-blur transition hover:bg-white/25"
+              >
+                Details ↓
+              </a>
+              <a
+                href="#golden-soundscapes"
+                className="rounded-full border border-white/35 bg-[#2563eb] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lg backdrop-blur transition hover:bg-[#ffffff] hover:text-[#0f172a]"
+              >
+                Soundscape ↓
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section id="golden-details" className="scroll-mt-6 px-4 pb-12 pt-4 sm:px-8 sm:pb-16">
+          <div className="mx-auto max-w-6xl rounded-[2rem] border border-[#2563eb]/50 bg-[#ffffff] px-6 py-10 shadow-[0_28px_80px_rgba(37,99,235,0.18)] sm:px-8 sm:py-14 lg:px-10 lg:py-16">
+            <p className="text-sm tracking-widest text-[#2563eb] uppercase">{locationCopy.pageLabel}</p>
+            <h2 className="mt-2 break-words font-['Georgia',serif] text-4xl font-black leading-tight text-[#0f172a] sm:text-5xl lg:text-[3.75rem]">
+              {displayName}
+            </h2>
+            <p className="mt-5 max-w-3xl break-words font-['Montserrat',sans-serif] text-lg leading-relaxed text-[#334155] sm:text-xl">
+              {heroDescription}
+            </p>
+          </div>
+        </section>
+
+        <section id="golden-soundscapes" className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-6 rounded-2xl border border-[#2563eb]/50 bg-[#ffffff] p-5 shadow-sm">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-2xl font-semibold tracking-widest text-[#2563eb] uppercase">
+                    {locationCopy.demoSounds}
+                  </p>
+                  <p className="mt-2 max-w-2xl text-base italic leading-relaxed text-[#334155]">
+                    {soundscape.description?.[language] ??
+                      'A layered soundscape of social voices, environmental texture, and local movement that reflects this place’s identity.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {soundGroups.map((group) => (
+                <section key={group.category}>
+                  <p className="mb-3 text-xs font-semibold tracking-widest text-[#2563eb] uppercase">
+                    {group.category}
+                  </p>
+                  <div className="grid gap-3">
+                    {group.layers.map((sound) => {
+                      const isActive = activeSoundId === sound.id
+                      return (
+                        <div
+                          key={sound.id}
+                          className={`group relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-md ${
+                            isActive
+                              ? 'border-[#2563eb] bg-[#2563eb]/30 shadow-sm'
+                              : 'border-[#ffffff]/80 bg-[#ffffff]/70 hover:border-[#2563eb]/70'
+                          }`}
+                        >
+                          {isActive && (
+                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(37,99,235,0.24),transparent_34%)]" />
+                          )}
+                          <div className="flex min-w-0 items-start gap-4">
+                            <button
+                              type="button"
+                              onClick={() => void handleToggleSound(sound.id)}
+                              className={`inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg transition-all duration-200 ease-in-out hover:scale-105 ${
+                                isActive
+                                  ? 'bg-[#2563eb] text-white hover:bg-[#ffffff] hover:text-[#0f172a]'
+                                  : 'bg-[#ffffff] text-[#0f172a] hover:bg-[#2563eb] hover:text-white'
+                              }`}
+                              aria-label={isActive ? `Pause ${sound.title[language]}` : `Play ${sound.title[language]}`}
+                            >
+                              {isActive ? '⏸' : '▶'}
+                            </button>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold text-[#0f172a]">{sound.title[language]}</p>
+                              <p className="mt-2 text-sm italic leading-relaxed text-[#334155]">
+                                {sound.subtitle[language]}
+                              </p>
+                              {sound.interpretation && (
+                                <p className="mt-2 text-sm italic leading-relaxed text-[#475569]">
+                                  {sound.interpretation[language]}
+                                </p>
+                              )}
+                              <div className={`mt-3 transition-all duration-300 ease-out ${
+                                isActive
+                                  ? 'max-h-12 opacity-100'
+                                  : 'max-h-0 overflow-hidden opacity-0'
+                              }`}>
+                                {isActive && (
+                                  <WaveformProgressBar
+                                    progress={activeProgress}
+                                    currentTime={activeTime}
+                                    duration={activeDuration}
+                                  />
+                                )}
+                              </div>
+                              {isActive && (
+                                <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb]">
+                                  <span className="h-2 w-2 animate-pulse rounded-full bg-[#2563eb]" />
+                                  Now Playing
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <audio
+                            ref={(el) => {
+                              soundRefs.current[sound.id] = el
+                            }}
+                            src={sound.url}
+                            loop
+                            preload="none"
+                            onLoadedMetadata={(event) => {
+                              if (activeSoundId === sound.id) {
+                                setActiveDuration(event.currentTarget.duration)
+                              }
+                            }}
+                            onTimeUpdate={(event) => {
+                              const audio = event.currentTarget
+                              if (activeSoundId === sound.id && Number.isFinite(audio.duration) && audio.duration > 0) {
+                                setActiveProgress(audio.currentTime / audio.duration)
+                                setActiveTime(audio.currentTime)
+                                setActiveDuration(audio.duration)
+                              }
+                            }}
+                            onEnded={() => {
+                              if (activeSoundId === sound.id) {
+                                setActiveSoundId(null)
+                                setActiveProgress(0)
+                                setActiveTime(0)
+                                setActiveDuration(0)
+                              }
+                            }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="golden-memory-scroll" className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
+          <div className="mx-auto max-w-6xl border-t border-[#2563eb]/50 pt-8">
+            <TimelineScroll
+              title="Memory Scroll"
+              items={timelineItems}
+              className="bg-[#ffffff]"
+            />
+          </div>
+        </section>
+      </div>
+    )
+  }
 
   return (
-    <div className="fade-in min-h-screen w-full overflow-auto bg-[#f5f1e8] px-4 py-8 text-[#1f2937] sm:px-8 sm:py-12">
+    <div className="fade-in min-h-screen w-full overflow-auto bg-[#ffffff] px-4 py-8 text-[#0f172a] sm:px-8 sm:py-12">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
-        <button
-          onClick={onBackToHome}
-          className="w-full cursor-pointer self-start rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-sm text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:w-auto"
-        >
-          {locationCopy.backToHome}
-        </button>
-
-        <section className="rounded-[2rem] border border-[#e5e7eb] bg-[#fdfaf6] px-6 py-10 shadow-sm sm:px-8 sm:py-14 lg:px-10 lg:py-16">
+        <section className="rounded-[2rem] border border-[#2563eb]/50 bg-[#ffffff] px-6 py-10 shadow-sm sm:px-8 sm:py-14 lg:px-10 lg:py-16">
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[0.4fr_0.6fr] lg:gap-12">
             <div className="min-w-0">
-              <p className="text-sm tracking-widest text-amber-700 uppercase">{locationCopy.pageLabel}</p>
-              <h2 className="mt-2 break-words font-['Georgia',serif] text-4xl font-black leading-tight text-[#1f2937] sm:text-5xl lg:text-[3.75rem]">{displayName}</h2>
-              <p className="mt-5 max-w-xl break-words font-['Montserrat',sans-serif] text-lg leading-relaxed text-[#6b7280] sm:text-xl">
+              <p className="text-sm tracking-widest text-[#2563eb] uppercase">{locationCopy.pageLabel}</p>
+              <h2 className="mt-2 break-words font-['Georgia',serif] text-4xl font-black leading-tight text-[#0f172a] sm:text-5xl lg:text-[3.75rem]">{displayName}</h2>
+              <p className="mt-5 max-w-xl break-words font-['Montserrat',sans-serif] text-lg leading-relaxed text-[#334155] sm:text-xl">
                 {heroDescription}
               </p>
             </div>
 
-            <div className="relative w-full overflow-hidden rounded-[1.75rem] border border-[#e5e7eb] bg-[#fdfaf6] shadow-[0_28px_70px_rgba(31,41,55,0.18),0_8px_18px_rgba(31,41,55,0.08)]">
-              {location.liveViewType === 'embed' ? (
-                <iframe
-                  src={location.liveViewUrl}
-                  title={displayName}
-                  className="h-full min-h-[320px] w-full transition-transform duration-500 ease-in-out hover:scale-[1.01] sm:min-h-[460px] lg:min-h-[560px]"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              ) : location.streetView ? (
-                <GoogleStreetView
-                  lat={location.streetView.lat}
-                  lng={location.streetView.lng}
-                  heading={location.streetView.heading}
-                  pitch={location.streetView.pitch}
-                  zoom={location.streetView.zoom}
-                />
-              ) : location.liveViewType === 'video' ? (
-                <video
-                  src={location.liveViewUrl}
-                  controls
-                  autoPlay
-                  muted
-                  loop
-                  className="h-full min-h-[320px] w-full object-cover transition-transform duration-500 ease-in-out hover:scale-[1.01] sm:min-h-[460px] lg:min-h-[560px]"
-                />
-              ) : (
-                <img
-                  src={location.liveViewUrl}
-                  alt={displayName}
-                  className="h-full min-h-[320px] w-full object-cover transition-transform duration-500 ease-in-out hover:scale-[1.01] sm:min-h-[460px] lg:min-h-[560px]"
-                />
-              )}
+            <div className="relative w-full overflow-hidden rounded-[1.75rem] border border-[#2563eb]/50 bg-[#ffffff] shadow-[0_28px_70px_rgba(0,0,0,0.26),0_8px_18px_rgba(37,99,235,0.12)]">
+              {renderLocationView(standardLocationViewClass)}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
           </div>
         </section>
 
         <div className="w-full py-2">
-          <div className="mb-6 rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-6 shadow-sm">
-            <p className="mb-4 text-2xl font-semibold tracking-widest text-amber-700 uppercase">
+          <div className="mb-6 rounded-2xl border border-[#2563eb]/50 bg-[#ffffff] p-6 shadow-sm">
+            <p className="mb-4 text-2xl font-semibold tracking-widest text-[#2563eb] uppercase">
               Community Memory
             </p>
-            <div className="border-l-2 border-amber-400 pl-4">
-              <blockquote className="font-['Montserrat',sans-serif] text-base italic leading-relaxed text-gray-700 sm:text-lg">
+            <div className="border-l-2 border-[#2563eb] pl-4">
+              <blockquote className="font-['Montserrat',sans-serif] text-base italic leading-relaxed text-[#0f172a] sm:text-lg">
                 “{communityMemory.quote[language]}”
               </blockquote>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-[#334155]">
                 — {communityMemory.attribution[language]}
               </p>
             </div>
           </div>
 
-          <div className="mb-6 rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-5 shadow-sm">
+          <div className="mb-6 rounded-2xl border border-[#2563eb]/50 bg-[#ffffff] p-5 shadow-sm">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-2xl font-semibold tracking-widest text-amber-700 uppercase">
+                <p className="text-2xl font-semibold tracking-widest text-[#2563eb] uppercase">
                   {locationCopy.demoSounds}
                 </p>
-                <p className="mt-2 max-w-2xl text-base italic leading-relaxed text-[#4b5563]">
+                <p className="mt-2 max-w-2xl text-base italic leading-relaxed text-[#334155]">
                   {soundscape.description?.[language] ??
                     'A layered soundscape of social voices, environmental texture, and local movement that reflects this place’s identity.'}
                 </p>
@@ -1469,7 +1678,7 @@ function LocationPage({
           <div className="space-y-6">
             {soundGroups.map((group) => (
               <section key={group.category}>
-                <p className="mb-3 text-xs font-semibold tracking-widest text-[#9ca3af] uppercase">
+                <p className="mb-3 text-xs font-semibold tracking-widest text-[#2563eb] uppercase">
                   {group.category}
                 </p>
                 <div className="grid gap-3">
@@ -1480,12 +1689,12 @@ function LocationPage({
                         key={sound.id}
                         className={`group relative overflow-hidden rounded-2xl border p-4 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-md ${
                           isActive
-                            ? 'border-amber-400 bg-amber-50/80 shadow-sm'
-                            : 'border-[#e5e7eb] bg-[#fdfaf6] hover:border-amber-700/30'
+                            ? 'border-[#2563eb] bg-[#2563eb]/30 shadow-sm'
+                            : 'border-[#ffffff]/80 bg-[#ffffff]/70 hover:border-[#2563eb]/70'
                         }`}
                       >
                         {isActive && (
-                          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(245,158,11,0.2),transparent_34%)]" />
+                          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(37,99,235,0.24),transparent_34%)]" />
                         )}
                         <div className="flex min-w-0 items-start gap-4">
                           <button
@@ -1493,20 +1702,20 @@ function LocationPage({
                             onClick={() => void handleToggleSound(sound.id)}
                             className={`inline-flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg transition-all duration-200 ease-in-out hover:scale-105 ${
                               isActive
-                                ? 'bg-amber-700 text-white hover:bg-amber-800'
-                                : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
+                                ? 'bg-[#2563eb] text-white hover:bg-[#ffffff] hover:text-[#0f172a]'
+                                : 'bg-[#ffffff] text-[#0f172a] hover:bg-[#2563eb] hover:text-white'
                             }`}
                             aria-label={isActive ? `Pause ${sound.title[language]}` : `Play ${sound.title[language]}`}
                           >
                             {isActive ? '⏸' : '▶'}
                           </button>
                           <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-gray-900">{sound.title[language]}</p>
-                            <p className="mt-2 text-sm italic leading-relaxed text-gray-600">
+                            <p className="font-semibold text-[#0f172a]">{sound.title[language]}</p>
+                            <p className="mt-2 text-sm italic leading-relaxed text-[#334155]">
                               {sound.subtitle[language]}
                             </p>
                             {sound.interpretation && (
-                              <p className="mt-2 text-sm italic leading-relaxed text-gray-700">
+                              <p className="mt-2 text-sm italic leading-relaxed text-[#475569]">
                                 {sound.interpretation[language]}
                               </p>
                             )}
@@ -1524,8 +1733,8 @@ function LocationPage({
                               )}
                             </div>
                             {isActive && (
-                              <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-amber-700">
-                                <span className="h-2 w-2 animate-pulse rounded-full bg-amber-600" />
+                              <p className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#2563eb]">
+                                <span className="h-2 w-2 animate-pulse rounded-full bg-[#2563eb]" />
                                 Now Playing
                               </p>
                             )}
@@ -1567,11 +1776,11 @@ function LocationPage({
               </section>
             ))}
           </div>
-          <div className="mt-10 border-t border-[#e5e7eb] pt-8">
+          <div className="mt-10 border-t border-[#2563eb]/50 pt-8">
             <TimelineScroll
               title="Memory Scroll"
               items={timelineItems}
-              className="bg-[#fdfaf6]"
+              className="bg-[#ffffff]"
             />
           </div>
         </div>
@@ -1579,4 +1788,6 @@ function LocationPage({
     </div>
   )
 }
+
+
 

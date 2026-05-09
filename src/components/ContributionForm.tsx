@@ -320,31 +320,31 @@ export function ContributionForm({
 
   return (
     <div
-      className={`rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-6 shadow-sm ${className}`}
+      className={`rounded-2xl border border-[#ffffff]/70 bg-[#ffffff] p-6 text-[#0f172a] shadow-sm ${className}`}
       style={{
         backgroundImage:
-          'radial-gradient(circle at 1px 1px, rgba(31,41,55,0.04) 1px, transparent 0)',
+          'radial-gradient(circle at 1px 1px, rgba(37,99,235,0.18) 1px, transparent 0)',
         backgroundSize: '18px 18px',
       }}
     >
       <div className="mb-5">
-        <p className="text-xs tracking-widest text-amber-700 uppercase">Community Archive</p>
-        <h2 className="mt-2 text-3xl font-semibold text-[#1f2937]">Contribute Your Memory</h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#6b7280]">
+        <p className="text-xs tracking-widest text-[#2563eb] uppercase">Community Archive</p>
+        <h2 className="mt-2 text-3xl font-semibold text-[#0f172a]">Contribute Your Memory</h2>
+        <p className="mt-2 text-sm leading-relaxed text-[#334155]">
           Share stories, photos, videos, audio, and moments from Sham Shui Po to enrich the living timeline.
         </p>
       </div>
 
       {!isSupabaseConfigured && (
-        <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+        <div className="mb-4 rounded-xl border border-[#2563eb]/50 bg-[#2563eb]/20 p-3 text-sm text-[#0f172a]">
           Missing Supabase env vars. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to your `.env`.
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="contrib-title" className="mb-1 block text-sm font-medium text-[#1f2937]">
-            Title <span className="text-amber-700">*</span>
+          <label htmlFor="contrib-title" className="mb-1 block text-sm font-medium text-[#0f172a]">
+            Title <span className="text-[#2563eb]">*</span>
           </label>
           <input
             id="contrib-title"
@@ -353,14 +353,14 @@ export function ContributionForm({
             value={form.title}
             onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
             placeholder="e.g. First visit to Golden Computer Arcade"
-            className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#1f2937] outline-none transition-all duration-300 ease-in-out focus:border-amber-700/50"
+            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm text-[#0f172a] outline-none transition-all duration-300 ease-in-out focus:border-[#2563eb]"
           />
         </div>
 
         <div>
           <label
             htmlFor="contrib-description"
-            className="mb-1 block text-sm font-medium text-[#1f2937]"
+            className="mb-1 block text-sm font-medium text-[#0f172a]"
           >
             Description
           </label>
@@ -370,7 +370,7 @@ export function ContributionForm({
             value={form.description}
             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
             placeholder="Describe the memory in a few lines..."
-            className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm leading-relaxed text-[#1f2937] outline-none transition-all duration-300 ease-in-out focus:border-amber-700/50"
+            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm leading-relaxed text-[#0f172a] outline-none transition-all duration-300 ease-in-out focus:border-[#2563eb]"
           />
         </div>
 
@@ -378,11 +378,11 @@ export function ContributionForm({
           <div className="relative">
             <label
               htmlFor="contrib-location"
-              className="mb-2 block text-base font-semibold text-[#1f2937]"
+              className="mb-2 block text-base font-semibold text-[#0f172a]"
             >
-              Search location in Sham Shui Po <span className="text-amber-700">*</span>
+              Search location in Sham Shui Po <span className="text-[#2563eb]">*</span>
             </label>
-            <div className="relative rounded-2xl border border-[#e5e7eb] bg-white shadow-sm transition-all duration-300 ease-in-out focus-within:border-amber-700/50 focus-within:ring-4 focus-within:ring-amber-100">
+            <div className="relative rounded-2xl border border-[#ffffff]/60 bg-white shadow-sm transition-all duration-300 ease-in-out focus-within:border-[#2563eb] focus-within:ring-4 focus-within:ring-[#2563eb]/20">
               {ghostSuggestionText ? (
                 <div
                   className="pointer-events-none absolute inset-0 overflow-hidden whitespace-nowrap px-4 py-3 pr-36 text-base leading-relaxed text-[#c4b5a3]"
@@ -403,7 +403,7 @@ export function ContributionForm({
                 }}
                 onKeyDown={handleLocationKeyDown}
                 placeholder="Search streets, shops, landmarks..."
-                className="relative w-full rounded-2xl bg-transparent px-4 py-3 pr-36 text-base leading-relaxed text-[#1f2937] outline-none placeholder:text-[#9ca3af]"
+                  className="relative w-full rounded-2xl bg-transparent px-4 py-3 pr-36 text-base leading-relaxed text-[#0f172a] outline-none placeholder:text-[#c68f8f]"
               />
               <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9ca3af]">
                 {searchingLocations ? 'Searching' : topSuggestion ? 'Tab to accept' : ''}
@@ -411,19 +411,19 @@ export function ContributionForm({
             </div>
           </div>
           {form.latitude !== null && form.longitude !== null ? (
-            <p className="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700">
+              <p className="mt-2 rounded-lg bg-[#2563eb]/25 px-3 py-2 text-xs font-medium text-[#0f172a]">
               Location selected: {form.placeName}
             </p>
           ) : (
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-[#6b7280]">
+              <p className="text-xs text-[#334155]">
                 Press Tab, Right Arrow, Enter, or submit to use the best match.
               </p>
               <button
                 type="button"
                 onClick={() => void handleConfirmLocation()}
                 disabled={locationQuery.trim().length < 2 || searchingLocations}
-                className="inline-flex min-h-[38px] items-center justify-center rounded-xl border border-amber-700/25 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 transition-all duration-200 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-[38px] items-center justify-center rounded-xl border border-[#2563eb]/50 bg-[#ffffff] px-3 py-2 text-xs font-semibold text-[#0f172a] transition-all duration-200 hover:bg-[#2563eb] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Confirm Location
               </button>
@@ -432,8 +432,8 @@ export function ContributionForm({
         </div>
 
         <div>
-          <label htmlFor="contrib-media" className="mb-1 block text-sm font-medium text-[#1f2937]">
-            Upload media <span className="text-amber-700">*</span>
+          <label htmlFor="contrib-media" className="mb-1 block text-sm font-medium text-[#0f172a]">
+            Upload media <span className="text-[#2563eb]">*</span>
           </label>
           <input
             id="contrib-media"
@@ -444,10 +444,10 @@ export function ContributionForm({
               const file = e.target.files?.[0] ?? null
               setForm((prev) => ({ ...prev, media: file }))
             }}
-            className="w-full rounded-xl border border-[#e5e7eb] bg-white px-3 py-2 text-sm text-[#6b7280] file:mr-4 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-1 file:text-xs file:font-medium file:text-amber-700"
+            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm text-[#0f172a] file:mr-4 file:rounded-lg file:border-0 file:bg-[#2563eb] file:px-3 file:py-1 file:text-xs file:font-medium file:text-white"
           />
           {form.media ? (
-            <p className="mt-2 text-xs text-[#6b7280]">Selected: {form.media.name}</p>
+            <p className="mt-2 text-xs text-[#334155]">Selected: {form.media.name}</p>
           ) : null}
         </div>
 
@@ -463,37 +463,37 @@ export function ContributionForm({
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-amber-700/30 bg-amber-700 px-4 py-2 text-sm font-medium text-white transition-all duration-300 ease-in-out hover:scale-[1.01] hover:bg-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-[#2563eb]/70 bg-[#2563eb] px-4 py-2 text-sm font-medium text-white transition-all duration-300 ease-in-out hover:scale-[1.01] hover:bg-[#ffffff] hover:text-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? 'Submitting...' : 'Submit Memory'}
         </button>
       </form>
 
       {showRecentEntries && entries.length > 0 ? (
-        <div className="mt-8 border-t border-[#e5e7eb] pt-6">
-          <h3 className="text-sm tracking-widest text-amber-700 uppercase">Recent Contributions</h3>
+        <div className="mt-8 border-t border-[#ffffff]/50 pt-6">
+          <h3 className="text-sm tracking-widest text-[#2563eb] uppercase">Recent Contributions</h3>
           <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {entries.map((entry) => (
               <article
                 key={entry.id}
-                className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] shadow-sm"
+                className="overflow-hidden rounded-2xl border border-[#ffffff]/60 bg-[#ffffff] shadow-sm"
               >
                 <div className="relative">
                   <img src={entry.image_url} alt={entry.title} className="h-36 w-full object-cover" />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   {entry.year ? (
-                    <span className="absolute left-2 top-2 rounded-full bg-[#fdfaf6]/90 px-2 py-0.5 text-[10px] text-amber-700">
+                    <span className="absolute left-2 top-2 rounded-full bg-[#ffffff]/90 px-2 py-0.5 text-[10px] text-[#2563eb]">
                       {entry.year}
                     </span>
                   ) : null}
                 </div>
                 <div className="space-y-1 p-3">
-                  <h4 className="text-sm font-semibold text-[#1f2937]">{entry.title}</h4>
+                  <h4 className="text-sm font-semibold text-[#0f172a]">{entry.title}</h4>
                   {entry.location ? (
-                    <p className="text-xs text-amber-700">{entry.location}</p>
+                    <p className="text-xs text-[#2563eb]">{entry.location}</p>
                   ) : null}
                   {entry.description ? (
-                    <p className="text-xs leading-relaxed text-[#6b7280] line-clamp-3">{entry.description}</p>
+                    <p className="text-xs leading-relaxed text-[#334155] line-clamp-3">{entry.description}</p>
                   ) : null}
                 </div>
               </article>
@@ -504,3 +504,5 @@ export function ContributionForm({
     </div>
   )
 }
+
+

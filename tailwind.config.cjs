@@ -11,8 +11,12 @@ module.exports = {
           yellow: '#ffd54a',
         },
         ssp: {
-          bg: '#050308',
-          panel: '#111016',
+          bg: '#ffffff',
+          panel: '#ffffff',
+          green: '#2563eb',
+          purple: '#ffffff',
+          pink: '#2563eb',
+          blue: '#ffffff',
         },
       },
       fontFamily: {
@@ -26,4 +30,5 @@ module.exports = {
   },
   plugins: [],
 }
+
 

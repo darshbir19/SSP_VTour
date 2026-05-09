@@ -78,7 +78,7 @@ export function TimelineScroll({
   if (!items.length) {
     return (
       <section
-        className={`rounded-2xl border border-[#e5e7eb] bg-[#fdfaf6] p-8 text-center text-[#6b7280] ${className}`}
+        className={`rounded-2xl border border-[#ffffff]/70 bg-[#ffffff] p-8 text-center text-[#334155] ${className}`}
       >
         Add timeline items to render this component.
       </section>
@@ -86,13 +86,13 @@ export function TimelineScroll({
   }
 
   return (
-    <section className={`w-full rounded-3xl border border-[#e5e7eb] bg-[#fdfaf6] text-[#1f2937] shadow-sm ${className}`}>
+    <section className={`w-full rounded-3xl border border-[#ffffff]/70 bg-[#ffffff] text-[#0f172a] shadow-sm ${className}`}>
       <div className="mx-auto w-full max-w-6xl px-5 py-10 md:px-8 lg:px-10 lg:py-14">
-        <p className="mb-8 text-2xl font-semibold tracking-widest text-amber-700 uppercase">
+        <p className="mb-8 text-2xl font-semibold tracking-widest text-[#2563eb] uppercase">
           {title}
         </p>
         <div className="relative">
-          <div className="absolute bottom-10 left-1/2 top-10 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-amber-300/70 to-transparent lg:block" />
+          <div className="absolute bottom-10 left-1/2 top-10 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[#2563eb]/70 to-transparent lg:block" />
           <div className="space-y-14">
             {items.map((item, index) => {
               const active = index === activeIndex
@@ -111,12 +111,12 @@ export function TimelineScroll({
                   <span
                     className={`absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full border transition-all duration-300 ease-in-out lg:block ${
                       active
-                        ? 'h-5 w-5 border-amber-700 bg-amber-700 shadow-[0_0_0_8px_rgba(180,83,9,0.12)]'
-                        : 'h-3.5 w-3.5 border-[#d1d5db] bg-[#fdfaf6]'
+                        ? 'h-5 w-5 border-[#2563eb] bg-[#2563eb] shadow-[0_0_0_8px_rgba(37,99,235,0.16)]'
+                        : 'h-3.5 w-3.5 border-[#ffffff] bg-[#ffffff]'
                     }`}
                   />
 
-                  <div className="group relative w-full overflow-hidden rounded-xl border border-[#e5e7eb] bg-[#f5f1e8] shadow-md lg:w-1/2">
+                  <div className="group relative w-full overflow-hidden rounded-xl border border-[#ffffff]/60 bg-[#ffffff] shadow-md lg:w-1/2">
                     <img
                       src={item.image}
                       alt={`${item.year} timeline preview`}
@@ -124,28 +124,28 @@ export function TimelineScroll({
                     />
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     {item.imageLabel ? (
-                      <span className="absolute left-3 top-3 rounded-full border border-[#e5e7eb] bg-[#fdfaf6]/90 px-2 py-1 text-[10px] font-semibold tracking-wide text-[#b45309] uppercase">
+                      <span className="absolute left-3 top-3 rounded-full border border-[#2563eb]/50 bg-[#ffffff]/90 px-2 py-1 text-[10px] font-semibold tracking-wide text-[#2563eb] uppercase">
                         {item.imageLabel}
                       </span>
                     ) : null}
                   </div>
 
                   <div
-                    className={`w-full max-w-md rounded-2xl border bg-[#fdfaf6] p-6 shadow-sm transition-all duration-300 ease-in-out lg:w-1/2 ${
+                    className={`w-full max-w-md rounded-2xl border bg-[#ffffff] p-6 shadow-sm transition-all duration-300 ease-in-out lg:w-1/2 ${
                       active
-                        ? 'translate-y-0 border-amber-700/60'
-                        : 'translate-y-1 border-[#e5e7eb]'
+                        ? 'translate-y-0 border-[#2563eb]/70'
+                        : 'translate-y-1 border-[#ffffff]/60'
                     }`}
                   >
-                    <p className="text-base font-semibold tracking-widest text-amber-700 uppercase transition-all duration-300">
+                    <p className="text-base font-semibold tracking-widest text-[#2563eb] uppercase transition-all duration-300">
                       {item.year}
                     </p>
                     {item.title ? (
-                      <h3 className="mt-3 whitespace-nowrap text-xl font-semibold leading-tight text-[#1f2937] sm:text-2xl">
+                      <h3 className="mt-3 whitespace-nowrap text-xl font-semibold leading-tight text-[#0f172a] sm:text-2xl">
                         {item.title}
                       </h3>
                     ) : null}
-                    <p className="mt-3 text-base leading-relaxed text-[#6b7280]">
+                    <p className="mt-3 text-base leading-relaxed text-[#334155]">
                       {item.text}
                     </p>
                   </div>
@@ -158,3 +158,5 @@ export function TimelineScroll({
     </section>
   )
 }
+
+

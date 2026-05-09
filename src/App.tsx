@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { HomePage } from './components/HomePage'
-import { LanguageSwitcher } from './components/LanguageSwitcher'
+import { CinematicNavbar } from './components/CinematicNavbar'
 import { MapTour } from './components/MapTour'
 import { ContributionForm } from './components/ContributionForm'
 import { LanguageProvider } from './context/LanguageContext'
@@ -11,40 +11,99 @@ export function App() {
   const [locationDetailOpen, setLocationDetailOpen] = useState(false)
   const [contributeOpen, setContributeOpen] = useState(false)
   const [submissionRefreshKey, setSubmissionRefreshKey] = useState(0)
+  const [homepageLocationRequest, setHomepageLocationRequest] = useState({
+    locationId: null as string | null,
+    requestKey: 0,
+  })
+  const [navigateHomeSignal, setNavigateHomeSignal] = useState(0)
+  const [mapSectionReachedTop, setMapSectionReachedTop] = useState(false)
 
-  const handleBackToHome = () => {
+  useEffect(() => {
+    const NAVBAR_OFFSET_PX = 52
+
+    const updateMapSectionTop = () => {
+      const mapEl = mapSectionRef.current
+      if (!mapEl) return
+
+      const mapTop = mapEl.getBoundingClientRect().top
+      setMapSectionReachedTop(mapTop <= NAVBAR_OFFSET_PX)
+    }
+
+    updateMapSectionTop()
+    window.addEventListener('scroll', updateMapSectionTop, { passive: true })
+    window.addEventListener('resize', updateMapSectionTop)
+    return () => {
+      window.removeEventListener('scroll', updateMapSectionTop)
+      window.removeEventListener('resize', updateMapSectionTop)
+    }
+  }, [locationDetailOpen])
+
+  const showArchiveNavbar = locationDetailOpen || !mapSectionReachedTop
+
+  const handleNavigateHome = () => {
+    setNavigateHomeSignal((n) => n + 1)
     setLocationDetailOpen(false)
+    setHomepageLocationRequest((request) => ({
+      locationId: null,
+      requestKey: request.requestKey + 1,
+    }))
     window.requestAnimationFrame(() => {
       homeSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
     })
   }
 
+  const handleOpenHomepageLocation = (locationId: string) => {
+    setLocationDetailOpen(true)
+    setHomepageLocationRequest((request) => ({
+      locationId,
+      requestKey: request.requestKey + 1,
+    }))
+    window.requestAnimationFrame(() => {
+      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }
+
+  const handleLocationViewChange = useCallback((open: boolean) => {
+    setLocationDetailOpen((was) => (was === open ? was : open))
+    if (!open) {
+      setHomepageLocationRequest((request) =>
+        request.locationId === null ? request : { ...request, locationId: null },
+      )
+    }
+  }, [])
+
   return (
     <LanguageProvider>
-      <div className="relative min-h-screen w-full overflow-x-hidden bg-ssp-bg text-slate-100 scroll-smooth">
-        <div className="pointer-events-auto fixed left-4 right-4 top-8 z-[100] flex items-center justify-end gap-2 sm:left-auto sm:right-8 sm:top-12">
-          <button
-            type="button"
-            onClick={() => setContributeOpen(true)}
-            className="inline-flex h-10 min-w-[96px] items-center justify-center gap-1 rounded-xl border border-[#e5e7eb] bg-[#fdfaf6] px-4 py-2 text-xs text-[#1f2937] shadow-sm transition-all duration-300 ease-in-out hover:scale-[1.02] hover:border-amber-700/40 sm:min-w-10 sm:text-sm"
-          >
-            <span aria-hidden="true">📍</span>
-            <span>Contribute</span>
-          </button>
-          <LanguageSwitcher />
-        </div>
-
+      <div className="relative min-h-screen w-full overflow-x-hidden bg-[#ffffff] text-[#0f172a] scroll-smooth">
+        {showArchiveNavbar && (
+          <>
+            <CinematicNavbar
+              onOpenLocation={handleOpenHomepageLocation}
+              onOpenContribute={() => setContributeOpen(true)}
+              onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              onNavigateHome={handleNavigateHome}
+            />
+            <div className="h-12 w-full shrink-0" aria-hidden />
+          </>
+        )}
         <section
           ref={homeSectionRef}
           className={locationDetailOpen ? 'hidden' : 'min-h-screen w-full'}
         >
-          <HomePage onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+          <HomePage
+            onOpenLocation={handleOpenHomepageLocation}
+            onOpenContribute={() => setContributeOpen(true)}
+            onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          />
         </section>
         <section ref={mapSectionRef} className="min-h-screen w-full">
           <MapTour
-            onBackToHome={handleBackToHome}
-            onLocationViewChange={setLocationDetailOpen}
+            onBackToHome={handleNavigateHome}
+            onLocationViewChange={handleLocationViewChange}
+            navigateHomeSignal={navigateHomeSignal}
             submissionRefreshKey={submissionRefreshKey}
+            directLocationId={homepageLocationRequest.locationId}
+            directLocationRequestKey={homepageLocationRequest.requestKey}
           />
         </section>
 
@@ -54,12 +113,17 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setContributeOpen(false)}
-                className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#e5e7eb] bg-[#fdfaf6] text-sm text-[#1f2937] transition-all duration-300 hover:scale-105"
+                className="absolute right-3 top-3 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#2563eb]/40 bg-[#ffffff] text-sm text-[#0f172a] transition-all duration-300 hover:scale-105 hover:bg-[#1d4ed8] hover:text-white"
                 aria-label="Close contribution form"
               >
                 ✕
               </button>
-              <ContributionForm onSubmitted={() => setSubmissionRefreshKey((key) => key + 1)} />
+              <ContributionForm
+                onSubmitted={() => {
+                  setSubmissionRefreshKey((key) => key + 1)
+                  setContributeOpen(false)
+                }}
+              />
             </div>
           </div>
         )}
@@ -67,4 +131,5 @@ export function App() {
     </LanguageProvider>
   )
 }
+
 

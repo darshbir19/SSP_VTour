@@ -85,7 +85,7 @@ export function GoogleStreetView({ lat, lng, heading = 90, pitch = 0, zoom = 0 }
 
   if (error) {
     return (
-      <div className="flex h-full min-h-[280px] items-center justify-center rounded-lg border border-amber-300/40 bg-amber-500/10 p-5 text-center text-sm text-amber-100">
+      <div className="flex h-full min-h-[280px] items-center justify-center rounded-lg border border-[#2563eb]/50 bg-[#ffffff] p-5 text-center text-sm text-[#0f172a]">
         {error}
       </div>
     )
@@ -93,4 +93,6 @@ export function GoogleStreetView({ lat, lng, heading = 90, pitch = 0, zoom = 0 }
 
   return <div ref={containerRef} className="h-full min-h-[280px] w-full" />
 }
+
+
 

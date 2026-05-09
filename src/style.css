@@ -15,8 +15,8 @@ body,
 }
 
 body {
-  background-color: #050308;
-  color: #f9fafb;
+  background-color: #ffffff;
+  color: #0f172a;
   font-family: 'Ubuntu', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   min-height: 100vh;
 }
@@ -34,12 +34,13 @@ button {
 }
 
 .leaflet-tile-pane {
-  filter: contrast(1.12) saturate(0.92);
+  filter: none;
 }
 
 .leaflet-media-marker-wrapper {
   background: transparent;
   border: 0;
+  overflow: visible;
 }
 
 .leaflet-media-marker {
@@ -47,25 +48,45 @@ button {
   background: transparent;
   border: 0;
   cursor: pointer;
-  display: grid;
-  height: 54px;
-  justify-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 88px;
+  justify-content: flex-end;
   padding: 0;
   position: relative;
   transform: translateY(0) scale(1);
   transition: transform 180ms ease;
-  width: 42px;
+  width: 200px;
+}
+
+.leaflet-media-marker-label {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(31, 41, 55, 0.18);
+  color: #991b1b;
+  display: block;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  max-width: 190px;
+  padding: 6px 10px;
+  text-transform: uppercase;
+  white-space: normal;
 }
 
 .leaflet-media-marker-glow {
-  background: rgba(220, 38, 38, 0.28);
+  background: rgba(220, 38, 38, 0.3);
   border-radius: 999px;
-  filter: blur(4px);
-  height: 42px;
+  bottom: 3px;
+  filter: blur(5px);
+  height: 48px;
   position: absolute;
-  top: 5px;
   transition: opacity 180ms ease, transform 180ms ease;
-  width: 42px;
+  width: 48px;
 }
 
 .leaflet-media-marker-pin {
@@ -75,12 +96,12 @@ button {
   border-radius: 999px 999px 999px 0;
   box-shadow: 0 10px 22px rgba(31, 41, 55, 0.35);
   display: flex;
-  height: 34px;
+  height: 38px;
   justify-content: center;
   position: relative;
   transform: rotate(-45deg);
   transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
-  width: 34px;
+  width: 38px;
 }
 
 .leaflet-media-marker-hover,
@@ -106,8 +127,8 @@ button {
   background: #ffffff;
   border-radius: 999px;
   display: block;
-  height: 10px;
-  width: 10px;
+  height: 11px;
+  width: 11px;
 }
 
 .leaflet-user-marker-wrapper {
@@ -121,23 +142,23 @@ button {
   border: 0;
   cursor: pointer;
   display: grid;
-  height: 38px;
+  height: 42px;
   justify-items: center;
   padding: 0;
   position: relative;
   transform: scale(1);
   transition: transform 180ms ease;
-  width: 38px;
+  width: 42px;
 }
 
 .leaflet-user-marker-glow {
   background: rgba(37, 99, 235, 0.3);
   border-radius: 999px;
   filter: blur(4px);
-  height: 38px;
+  height: 42px;
   position: absolute;
   transition: transform 180ms ease;
-  width: 38px;
+  width: 42px;
 }
 
 .leaflet-user-marker-icon {
@@ -149,14 +170,14 @@ button {
   color: #ffffff;
   display: flex;
   font-family: 'Montserrat', system-ui, sans-serif;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 800;
-  height: 30px;
+  height: 34px;
   justify-content: center;
   line-height: 1;
   position: relative;
   transition: box-shadow 180ms ease, transform 180ms ease;
-  width: 30px;
+  width: 34px;
 }
 
 .leaflet-user-marker:hover {
@@ -172,8 +193,8 @@ button {
 }
 
 .leaflet-popup-content-wrapper {
-  background: #fdfaf6;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border: 1px solid rgba(219, 234, 254, 0.75);
   border-radius: 1.5rem;
   box-shadow:
     0 28px 70px rgba(31, 41, 55, 0.2),
@@ -186,29 +207,29 @@ button {
 }
 
 .leaflet-popup-tip {
-  background: #fdfaf6;
+  background: #ffffff;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
 }
 
 .leaflet-popup-close-button {
-  color: #6b7280;
+  color: #334155;
   font-size: 20px;
   padding: 0.65rem 0.8rem;
   transition: color 160ms ease;
 }
 
 .leaflet-popup-close-button:hover {
-  color: #b45309;
+  color: #2563eb;
 }
 
 .leaflet-media-popup {
-  color: #1f2937;
+  color: #0f172a;
   overflow: hidden;
   padding: 1rem;
 }
 
 .leaflet-media-popup-type {
-  color: #b45309;
+  color: #2563eb;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -224,7 +245,7 @@ button {
 }
 
 .leaflet-media-popup p {
-  color: #6b7280;
+  color: #334155;
   font-size: 12px;
   line-height: 1.45;
   margin: 0 0 0.75rem;
@@ -246,9 +267,9 @@ button {
 
 .leaflet-contribution-popup {
   background:
-    radial-gradient(circle at 92% 8%, rgba(245, 158, 11, 0.14), transparent 32%),
-    #fdfaf6;
-  color: #1f2937;
+    radial-gradient(circle at 92% 8%, rgba(139, 30, 45, 0.22), transparent 32%),
+    #ffffff;
+  color: #0f172a;
   overflow: hidden;
   padding: 1.1rem;
   max-width: calc(100vw - 64px);
@@ -256,13 +277,13 @@ button {
 }
 
 .leaflet-contribution-popup-header {
-  border-left: 2px solid #f59e0b;
+  border-left: 2px solid #2563eb;
   margin-bottom: 0.85rem;
   padding-left: 0.85rem;
 }
 
 .leaflet-contribution-popup-kicker {
-  color: #b45309;
+  color: #2563eb;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -279,7 +300,7 @@ button {
 }
 
 .leaflet-contribution-popup-description {
-  color: #6b7280;
+  color: #334155;
   font-family: 'Montserrat', system-ui, sans-serif;
   font-size: 13px;
   font-style: italic;
@@ -288,7 +309,7 @@ button {
 }
 
 .leaflet-contribution-popup .leaflet-contribution-popup-place {
-  color: #6b7280;
+  color: #334155;
   font-family: 'Montserrat', system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
@@ -298,9 +319,9 @@ button {
 
 .leaflet-contribution-popup-media {
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(219, 234, 254, 0.75);
   border-radius: 1rem;
-  background: #f5f1e8;
+  background: #ffffff;
   box-shadow: 0 12px 30px rgba(31, 41, 55, 0.12);
 }
 
@@ -310,9 +331,39 @@ button {
   width: 100%;
 }
 
+.leaflet-contribution-popup-audio-card {
+  padding: 0.8rem;
+  width: min(58vw, 240px);
+}
+
+.leaflet-contribution-popup-audio-card .leaflet-contribution-popup-header {
+  margin-bottom: 0.6rem;
+  padding-left: 0.65rem;
+}
+
+.leaflet-contribution-popup-audio-card h3 {
+  font-size: 18px;
+  margin: 0 1.25rem 0.25rem 0;
+}
+
+.leaflet-contribution-popup-audio-card .leaflet-contribution-popup-description {
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 0.6rem 0 0;
+}
+
+.leaflet-contribution-popup-audio-card .leaflet-contribution-popup-media {
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 18px rgba(31, 41, 55, 0.1);
+}
+
+.leaflet-contribution-popup-audio-card .leaflet-contribution-popup-audio {
+  padding: 0.5rem;
+}
+
 .leaflet-contribution-popup-preview {
   aspect-ratio: 16 / 10;
-  background: #f5f1e8;
+  background: #ffffff;
   border: 0;
   display: block;
   object-fit: cover;
@@ -398,3 +449,5 @@ button {
     left: 100%;
   }
 }
+
+
