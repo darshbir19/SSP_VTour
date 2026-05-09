@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import interviewRecordingMp4 from '../assets/Video Recording.mp4'
 import audioInterviewMp3 from '../assets/Audio Recording 1.mp3'
+import { GentrificationMemorySection } from './GentrificationMemorySection'
 
 function FindingBlock({
   title,
@@ -334,6 +335,8 @@ export function FieldworkInterviewsSection({
           </div>
         </div>
       </div>
+
+      <GentrificationMemorySection />
 
       <div className="mx-auto mt-24 max-w-6xl px-0 pb-8">
         <div className="mx-auto mb-12 max-w-2xl text-center">

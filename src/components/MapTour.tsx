@@ -7,10 +7,8 @@ import { isSupabaseConfigured, supabase, type SubmissionRow } from '../lib/supab
 import type { MapLocation } from '../types/mapLocation'
 import { FieldworkInterviewsSection } from './FieldworkInterviewsSection'
 import { GoogleStreetView } from './GoogleStreetView'
-import { TimelineScroll, type TimelineItem } from './TimelineScroll'
-import timelineImage1980 from '../assets/1.jpg'
-import timelineImage2000 from '../assets/2.jpg'
-import timelineImage2025 from '../assets/3.png'
+import { immersiveTimelineLocationIds, locationTimelineItems } from '../data/locationTimelineMemories'
+import { TimelineScroll } from './TimelineScroll'
 
 type LocalizedText = { en: string; zh: string; hi: string }
 
@@ -216,108 +214,13 @@ interface MapTourProps {
   scrollToResearchOverviewSignal?: number
   /** Increment from App to show map and scroll to #fieldwork-interviews. */
   scrollToFieldworkInterviewsSignal?: number
+  /** Increment from App to show map and scroll to #gentrification-memory. */
+  scrollToGentrificationMemorySignal?: number
   /** Highlights Research dropdown items while corresponding sections are in view (map + scroll stack only). */
-  onResearchNavSectionChange?: (section: 'overview' | 'fieldwork' | null) => void
+  onResearchNavSectionChange?: (section: 'overview' | 'fieldwork' | 'gentrification' | null) => void
   submissionRefreshKey?: number
   directLocationId?: string | null
   directLocationRequestKey?: number
-}
-
-const goldenTimelineItems: TimelineItem[] = [
-  {
-    year: '2025',
-    title: 'A Dense Hub of Digital Consumption',
-    image: timelineImage1980,
-    text: 'The district blends classic bargain hunting with modern creator, gaming, and DIY tech communities. Narrow corridors, layered soundscapes, and tightly packed vendors create an intense, fast-paced environment. What was once about repair and necessity has now evolved into a culture of continuous upgrading, comparison, and consumption.',
-    imageLabel: 'Now',
-  },
-  {
-    year: '2005',
-    title: 'Rise of Consumer Electronics Culture',
-    image: timelineImage2000,
-    text: 'By the early 2000s, Golden Computer Centre had established itself as a key destination for PC parts, consoles, and gaming culture. Independent vendors competed closely, creating an environment driven by price comparison and product specialization. The space became not just a marketplace, but a hub for enthusiasts navigating a rapidly growing digital world.',
-    imageLabel: '2005',
-  },
-  {
-    year: '1980',
-    title: 'Early Street Electronics Culture',
-    image: timelineImage2025,
-    text: '"I remember coming here when most shops were small and crowded, filled with parts more than finished products. People came to fix things, not replace them. You could hear tools, voices, and radios all at once - it was not organized, but it felt alive. There was a kind of energy in the mess, where everyone seemed to be building or repairing something." - Anonymous Community Member. Originally written in Chinese, AI-Image Generated.',
-    imageLabel: 'AI reconstruction',
-  },
-]
-
-const locationTimelineItems: Record<string, TimelineItem[]> = {
-  golden: goldenTimelineItems,
-  apliu: [
-    {
-      year: '2025',
-      title: 'In Transition — Gentrification',
-      image: '/images/Apliu_2025.jpg',
-      text: 'In the background, buildings are stripped and rebuilt behind layers of scaffolding. What looks like maintenance signals something deeper—rising values, shifting ownership, and a slow redefinition of the neighborhood. The streets remain familiar, still full of movement, routine, and everyday life. Even as the foundations shift, the place holds on to its character—for now.',
-      imageLabel: 'Now',
-    },
-    {
-      year: '2005',
-      title: 'Bargain Tech Culture',
-      image: '/images/ApLiuStreet_2005.jpg',
-      text: 'By the 2000s, the street had become a familiar destination for bargain hunters, collectors, and hobbyists looking for parts that could not be found in regular shops. Its value came from comparison, negotiation, and local knowledge.',
-      imageLabel: '2005',
-    },
-    {
-      year: '1980',
-      title: 'Street-Level Electronics Trade',
-      image: '/images/Apliu_80.png',
-      text: 'Under hanging signs and crowded stalls, Apliu Street thrived as a place of exchange. Vendors laid out rows of second-hand cameras, each with its own story, while customers gathered not just to buy, but to compare, negotiate, and connect. It wasn’t polished—but it was alive, practical, and deeply human.',
-      imageLabel: 'Ai reconstruction',
-    },
-  ],
-  'pei-ho': [
-    {
-      year: '2025',
-      title: 'Everyday Food Infrastructure',
-      image: timelineImage1980,
-      text: 'Pei Ho Street Wet Market continues to anchor daily routines through produce stalls, fish vendors, and lunchtime movement. Its atmosphere reflects the importance of food shopping as a repeated neighborhood ritual.',
-      imageLabel: 'Now',
-    },
-    {
-      year: '2005',
-      title: 'A Market of Regulars',
-      image: '/images/Wet_Market_2000.png',
-      text: 'By the 2000s, the market was already shaped by familiar exchanges between vendors and returning customers. Price, freshness, trust, and habit all helped define the rhythm of the place.',
-      imageLabel: '2005',
-    },
-    {
-      year: '1980',
-      title: 'Wet Market Social Life',
-      image: timelineImage2025,
-      text: 'Earlier memories of the market center on voices, preparation sounds, and crowded movement. It was not only a place to buy food, but a social space where neighbors recognized one another through everyday exchange.',
-      imageLabel: 'Archive memory',
-    },
-  ],
-  'fuk-wing': [
-    {
-      year: '2025',
-      title: 'Nostalgia in Retail Form',
-      image: timelineImage1980,
-      text: 'Toy Street remains colorful and visually dense, with displays of toys, balloons, models, and seasonal goods. It turns childhood memory into a browsing experience shared by children, parents, and collectors.',
-      imageLabel: 'Now',
-    },
-    {
-      year: '2005',
-      title: 'Wholesale Play Culture',
-      image: '/images/toy2005.jpg',
-      text: 'By the 2000s, Fuk Wing Street was known for toy wholesalers and small shops where school supplies, party goods, and novelty items mixed together. The street became a place where play, commerce, and memory overlapped.',
-      imageLabel: '2005',
-    },
-    {
-      year: '1980',
-      title: 'Small Shops and Childhood Memory',
-      image: '/images/Toy_80.png',
-      text: 'Earlier toy shopping was remembered through crowded storefronts, simple displays, and the excitement of looking even when nothing was bought. The street carried a sense of discovery through small, affordable objects.',
-      imageLabel: 'Archive memory',
-    },
-  ],
 }
 
 const locationHeroDescriptions: Record<string, LocalizedText> = {
@@ -1194,6 +1097,7 @@ export function MapTour({
   navigateHomeSignal = 0,
   scrollToResearchOverviewSignal = 0,
   scrollToFieldworkInterviewsSignal = 0,
+  scrollToGentrificationMemorySignal = 0,
   onResearchNavSectionChange,
   submissionRefreshKey = 0,
   directLocationId,
@@ -1208,6 +1112,8 @@ export function MapTour({
   const lastResearchOverviewScrollDoneRef = useRef(0)
   const lastFieldworkInterviewsSignalRef = useRef(0)
   const lastFieldworkInterviewsScrollDoneRef = useRef(0)
+  const lastGentrificationMemorySignalRef = useRef(0)
+  const lastGentrificationMemoryScrollDoneRef = useRef(0)
 
   useLayoutEffect(() => {
     if (navigateHomeSignal > lastNavigateHomeSignalRef.current) {
@@ -1231,6 +1137,13 @@ export function MapTour({
       return
     }
 
+    if (scrollToGentrificationMemorySignal > lastGentrificationMemorySignalRef.current) {
+      lastGentrificationMemorySignalRef.current = scrollToGentrificationMemorySignal
+      setView('map')
+      onLocationViewChange?.(false)
+      return
+    }
+
     if (directLocationId) {
       const locationExists = mapLocations.some((location) => location.id === directLocationId)
       if (locationExists) {
@@ -1245,6 +1158,7 @@ export function MapTour({
     navigateHomeSignal,
     scrollToResearchOverviewSignal,
     scrollToFieldworkInterviewsSignal,
+    scrollToGentrificationMemorySignal,
     directLocationId,
     directLocationRequestKey,
     view,
@@ -1310,6 +1224,36 @@ export function MapTour({
       window.cancelAnimationFrame(innerRaf)
     }
   }, [scrollToFieldworkInterviewsSignal, view])
+
+  useEffect(() => {
+    if (scrollToGentrificationMemorySignal <= 0) return
+    if (scrollToGentrificationMemorySignal <= lastGentrificationMemoryScrollDoneRef.current) return
+    if (view !== 'map') return
+
+    let cancelled = false
+
+    const runScroll = () => {
+      if (cancelled) return
+      if (scrollDocumentToElementBelowArchiveNav('gentrification-memory')) {
+        lastGentrificationMemoryScrollDoneRef.current = scrollToGentrificationMemorySignal
+      }
+    }
+
+    let outerRaf = 0
+    let innerRaf = 0
+
+    outerRaf = window.requestAnimationFrame(() => {
+      innerRaf = window.requestAnimationFrame(() => {
+        runScroll()
+      })
+    })
+
+    return () => {
+      cancelled = true
+      window.cancelAnimationFrame(outerRaf)
+      window.cancelAnimationFrame(innerRaf)
+    }
+  }, [scrollToGentrificationMemorySignal, view])
 
   useEffect(() => {
     if (!SHOW_CONTRIBUTION_MARKERS) {
@@ -1398,6 +1342,7 @@ export function MapTour({
 
     const overview = document.getElementById('research-overview')
     const fieldwork = document.getElementById('fieldwork-interviews')
+    const gentrification = document.getElementById('gentrification-memory')
     const nav = document.querySelector('[data-archive-navbar]')
     const navH = nav instanceof HTMLElement ? Math.ceil(nav.getBoundingClientRect().height) : 52
 
@@ -1408,9 +1353,11 @@ export function MapTour({
     const publish = () => {
       const ro = ratios.get('research-overview') ?? 0
       const rf = ratios.get('fieldwork-interviews') ?? 0
+      const rg = ratios.get('gentrification-memory') ?? 0
       const t = 0.08
-      let next: 'overview' | 'fieldwork' | null = null
-      if (rf >= t && rf >= ro - 0.04) next = 'fieldwork'
+      let next: 'overview' | 'fieldwork' | 'gentrification' | null = null
+      if (rg >= 0.16) next = 'gentrification'
+      else if (rf >= t && rf >= ro - 0.04) next = 'fieldwork'
       else if (ro >= t) next = 'overview'
       onResearchNavSectionChange(next)
     }
@@ -1430,6 +1377,7 @@ export function MapTour({
 
     if (overview) obs.observe(overview)
     if (fieldwork) obs.observe(fieldwork)
+    if (gentrification) obs.observe(gentrification)
 
     const onScrollResize = () => publish()
     window.addEventListener('scroll', onScrollResize, { passive: true })
@@ -1642,7 +1590,7 @@ function LocationPage({ location, language }: LocationPageProps) {
   const displayName = localizedLocation?.name[language] ?? (language === 'zh' ? location.nameZh : location.nameEn)
   const displaySummary = localizedLocation?.summary[language] ?? location.summary
   const communityMemory = locationCommunityMemories[location.id] ?? locationCommunityMemories.golden
-  const timelineItems = locationTimelineItems[location.id] ?? goldenTimelineItems
+  const timelineItems = locationTimelineItems[location.id] ?? locationTimelineItems.golden
 
   const soundscape = soundscapes[location.id] ?? soundscapes.apliu
   const demoSounds = soundscape.layers
@@ -1733,7 +1681,7 @@ function LocationPage({ location, language }: LocationPageProps) {
   }
 
   const heroDescription = locationHeroDescriptions[location.id]?.[language] ?? displaySummary
-  const immersiveLocationIds = new Set(['golden', 'apliu', 'fuk-wing', 'pei-ho'])
+  const immersiveLocationIds = new Set<string>(immersiveTimelineLocationIds)
   const usesImmersiveLayout = immersiveLocationIds.has(location.id)
   const sectionIds = {
     details: `${location.id}-details`,

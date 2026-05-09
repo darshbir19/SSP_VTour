@@ -4,7 +4,7 @@ type DropdownItem = {
   label: string
   onClick?: () => void
   /** When set, this row is highlighted while the matching research scroll section is in view. */
-  researchNavHighlight?: 'overview' | 'fieldwork'
+  researchNavHighlight?: 'overview' | 'fieldwork' | 'gentrification'
 }
 
 type NavSection = {
@@ -20,7 +20,8 @@ interface CinematicNavbarProps {
   onNavigateHome?: () => void
   onScrollToResearchOverview?: () => void
   onScrollToFieldworkInterviews?: () => void
-  activeResearchNavItem?: 'overview' | 'fieldwork' | null
+  onOpenGentrificationMemory?: () => void
+  activeResearchNavItem?: 'overview' | 'fieldwork' | 'gentrification' | null
 }
 
 export function CinematicNavbar({
@@ -30,12 +31,13 @@ export function CinematicNavbar({
   onNavigateHome,
   onScrollToResearchOverview,
   onScrollToFieldworkInterviews,
+  onOpenGentrificationMemory,
   activeResearchNavItem = null,
 }: CinematicNavbarProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  const navSections: NavSection[] = [
+  const dropdownSections: NavSection[] = [
     {
       label: 'Places to Explore',
       kicker: 'Sensory field sites',
@@ -72,34 +74,17 @@ export function CinematicNavbar({
           onClick: onScrollToFieldworkInterviews,
           researchNavHighlight: 'fieldwork',
         },
-        { label: 'Gentrification & Memory' },
-      ],
-    },
-    {
-      label: 'Community Contributions',
-      kicker: 'Collective memory',
-      items: [
         {
-          label: 'Contribution Map',
-          onClick: onScrollToMap,
+          label: 'Gentrification & Memory',
+          onClick: onOpenGentrificationMemory,
+          researchNavHighlight: 'gentrification',
         },
-        {
-          label: 'Contribute Your Experience',
-          onClick: onOpenContribute,
-        },
-      ],
-    },
-    {
-      label: 'About',
-      kicker: 'Project context',
-      items: [
-        { label: 'About the Project' },
-        { label: 'About Sham Shui Po' },
-        { label: 'Why Sensory Heritage Matters' },
-        { label: 'Contact' },
       ],
     },
   ]
+
+  const navTabClass =
+    'group relative flex h-full items-center px-3 text-[0.78rem] font-medium uppercase tracking-[0.14em] text-white transition duration-300 hover:bg-white/[0.06] xl:px-4 xl:text-[0.82rem]'
 
   const handleItemClick = (item: DropdownItem) => {
     item.onClick?.()
@@ -151,7 +136,7 @@ export function CinematicNavbar({
         </div>
 
         <div className="hidden h-full items-center lg:flex">
-          {navSections.map((section) => {
+          {dropdownSections.map((section) => {
             const isActive = activeDropdown === section.label
             return (
               <div
@@ -208,6 +193,30 @@ export function CinematicNavbar({
               </div>
             )
           })}
+          <button
+            type="button"
+            onClick={() => {
+              setActiveDropdown(null)
+              onScrollToMap()
+            }}
+            className={navTabClass}
+            aria-label="Open map tour"
+          >
+            MAP TOUR
+            <span className="pointer-events-none absolute inset-x-3 bottom-0 h-[2px] origin-center scale-x-0 bg-white/90 opacity-0 shadow-[0_0_12px_rgba(255,255,255,0.35)] transition duration-300 group-hover:scale-x-100 group-hover:opacity-90" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveDropdown(null)
+              onOpenContribute()
+            }}
+            className={navTabClass}
+            aria-label="Contribute your experience"
+          >
+            CONTRIBUTE
+            <span className="pointer-events-none absolute inset-x-3 bottom-0 h-[2px] origin-center scale-x-0 bg-white/90 opacity-0 shadow-[0_0_12px_rgba(255,255,255,0.35)] transition duration-300 group-hover:scale-x-100 group-hover:opacity-90" />
+          </button>
         </div>
 
         <button
@@ -272,7 +281,7 @@ export function CinematicNavbar({
           </div>
 
           <div className="flex-1 overflow-y-auto px-3 py-4">
-            {navSections.map((section) => {
+            {dropdownSections.map((section) => {
               const isActive = activeDropdown === section.label
               return (
                 <div key={section.label} className="border-b border-white/10">
@@ -318,6 +327,26 @@ export function CinematicNavbar({
                 </div>
               )
             })}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false)
+                onScrollToMap()
+              }}
+              className="flex w-full items-center border-b border-white/10 px-3 py-4 text-left transition hover:bg-white/[0.06]"
+            >
+              <span className="text-[0.95rem] font-semibold uppercase tracking-[0.14em] text-white">MAP TOUR</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen(false)
+                onOpenContribute()
+              }}
+              className="flex w-full items-center border-b border-white/10 px-3 py-4 text-left transition hover:bg-white/[0.06]"
+            >
+              <span className="text-[0.95rem] font-semibold uppercase tracking-[0.14em] text-white">CONTRIBUTE</span>
+            </button>
           </div>
         </div>
       </aside>

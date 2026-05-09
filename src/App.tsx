@@ -18,7 +18,10 @@ export function App() {
   const [navigateHomeSignal, setNavigateHomeSignal] = useState(0)
   const [researchOverviewSignal, setResearchOverviewSignal] = useState(0)
   const [fieldworkInterviewsSignal, setFieldworkInterviewsSignal] = useState(0)
-  const [activeResearchNav, setActiveResearchNav] = useState<'overview' | 'fieldwork' | null>(null)
+  const [gentrificationMemorySignal, setGentrificationMemorySignal] = useState(0)
+  const [activeResearchNav, setActiveResearchNav] = useState<'overview' | 'fieldwork' | 'gentrification' | null>(
+    null,
+  )
   const [mapSectionReachedTop, setMapSectionReachedTop] = useState(false)
 
   useEffect(() => {
@@ -57,6 +60,7 @@ export function App() {
   }
 
   const handleOpenHomepageLocation = (locationId: string) => {
+    setActiveResearchNav(null)
     setLocationDetailOpen(true)
     setHomepageLocationRequest((request) => ({
       locationId,
@@ -68,6 +72,7 @@ export function App() {
   }
 
   const handleScrollToResearchOverview = useCallback(() => {
+    setActiveResearchNav(null)
     mapSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
@@ -77,6 +82,7 @@ export function App() {
   }, [])
 
   const handleScrollToFieldworkInterviews = useCallback(() => {
+    setActiveResearchNav(null)
     mapSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
@@ -85,8 +91,31 @@ export function App() {
     })
   }, [])
 
-  const handleResearchNavSectionChange = useCallback((section: 'overview' | 'fieldwork' | null) => {
-    setActiveResearchNav((prev) => (prev === section ? prev : section))
+  const handleResearchNavSectionChange = useCallback(
+    (section: 'overview' | 'fieldwork' | 'gentrification' | null) => {
+      setActiveResearchNav((prev) => (prev === section ? prev : section))
+    },
+    [],
+  )
+
+  const handleScrollToMapSection = useCallback(() => {
+    setActiveResearchNav(null)
+    mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })
+  }, [])
+
+  const handleOpenGentrificationMemory = useCallback(() => {
+    setLocationDetailOpen(false)
+    setHomepageLocationRequest((request) => ({
+      locationId: null,
+      requestKey: request.requestKey + 1,
+    }))
+    setActiveResearchNav('gentrification')
+    mapSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setGentrificationMemorySignal((n) => n + 1)
+      })
+    })
   }, [])
 
   const handleLocationViewChange = useCallback((open: boolean) => {
@@ -106,10 +135,11 @@ export function App() {
             <CinematicNavbar
               onOpenLocation={handleOpenHomepageLocation}
               onOpenContribute={() => setContributeOpen(true)}
-              onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })}
+              onScrollToMap={handleScrollToMapSection}
               onNavigateHome={handleNavigateHome}
               onScrollToResearchOverview={handleScrollToResearchOverview}
               onScrollToFieldworkInterviews={handleScrollToFieldworkInterviews}
+              onOpenGentrificationMemory={handleOpenGentrificationMemory}
               activeResearchNavItem={activeResearchNav}
             />
             <div className="h-12 w-full shrink-0" aria-hidden />
@@ -122,7 +152,7 @@ export function App() {
           <HomePage
             onOpenLocation={handleOpenHomepageLocation}
             onOpenContribute={() => setContributeOpen(true)}
-            onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })}
+            onScrollToMap={handleScrollToMapSection}
           />
         </section>
         <section ref={mapSectionRef} className="min-h-screen w-full">
@@ -132,6 +162,7 @@ export function App() {
             navigateHomeSignal={navigateHomeSignal}
             scrollToResearchOverviewSignal={researchOverviewSignal}
             scrollToFieldworkInterviewsSignal={fieldworkInterviewsSignal}
+            scrollToGentrificationMemorySignal={gentrificationMemorySignal}
             onResearchNavSectionChange={handleResearchNavSectionChange}
             submissionRefreshKey={submissionRefreshKey}
             directLocationId={homepageLocationRequest.locationId}
@@ -163,5 +194,3 @@ export function App() {
     </LanguageProvider>
   )
 }
-
-

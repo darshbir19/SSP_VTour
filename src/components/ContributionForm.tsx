@@ -318,33 +318,39 @@ export function ContributionForm({
         : `${locationQuery}  ${topSuggestion.placeName}`
       : ''
 
+  const labelClass = 'mb-1.5 block text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-[#64748b]'
+  const fieldInputClass =
+    'w-full rounded-lg border border-[#082852]/12 bg-white px-3 py-2.5 text-[0.8125rem] leading-snug text-[#0f172a] shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] placeholder:text-[#94a3b8] transition-[border-color,box-shadow] duration-200 hover:border-[#082852]/20 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20'
+
   return (
     <div
-      className={`rounded-2xl border border-[#ffffff]/70 bg-[#ffffff] p-6 text-[#0f172a] shadow-sm ${className}`}
+      className={`rounded-xl border border-[#082852]/10 bg-[#ffffff] p-5 text-[#0f172a] shadow-[0_1px_3px_rgba(8,40,82,0.06)] sm:p-6 ${className}`}
       style={{
         backgroundImage:
-          'radial-gradient(circle at 1px 1px, rgba(37,99,235,0.18) 1px, transparent 0)',
-        backgroundSize: '18px 18px',
+          'radial-gradient(circle at 1px 1px, rgba(37,99,235,0.07) 1px, transparent 0)',
+        backgroundSize: '20px 20px',
       }}
     >
-      <div className="mb-5">
-        <p className="text-xs tracking-widest text-[#2563eb] uppercase">Community Archive</p>
-        <h2 className="mt-2 text-3xl font-semibold text-[#0f172a]">Contribute Your Memory</h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#334155]">
+      <div className="mb-4">
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Community Archive</p>
+        <h2 className="mt-1.5 font-['Georgia',serif] text-2xl font-semibold tracking-tight text-[#082852] sm:text-[1.65rem]">
+          Contribute Your Memory
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-[0.8125rem] leading-relaxed text-[#475569]">
           Share stories, photos, videos, audio, and moments from Sham Shui Po to enrich the living timeline.
         </p>
       </div>
 
       {!isSupabaseConfigured && (
-        <div className="mb-4 rounded-xl border border-[#2563eb]/50 bg-[#2563eb]/20 p-3 text-sm text-[#0f172a]">
+        <div className="mb-3 rounded-lg border border-[#2563eb]/25 bg-[#eff6ff] px-3 py-2.5 text-[0.8125rem] leading-snug text-[#082852]">
           Missing Supabase env vars. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to your `.env`.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label htmlFor="contrib-title" className="mb-1 block text-sm font-medium text-[#0f172a]">
-            Title <span className="text-[#2563eb]">*</span>
+          <label htmlFor="contrib-title" className={labelClass}>
+            Title <span className="font-bold text-[#2563eb]">*</span>
           </label>
           <input
             id="contrib-title"
@@ -353,39 +359,35 @@ export function ContributionForm({
             value={form.title}
             onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
             placeholder="e.g. First visit to Golden Computer Arcade"
-            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm text-[#0f172a] outline-none transition-all duration-300 ease-in-out focus:border-[#2563eb]"
+            className={fieldInputClass}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="contrib-description"
-            className="mb-1 block text-sm font-medium text-[#0f172a]"
-          >
+          <label htmlFor="contrib-description" className={labelClass}>
             Description
           </label>
           <textarea
             id="contrib-description"
-            rows={4}
+            rows={3}
             value={form.description}
             onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
             placeholder="Describe the memory in a few lines..."
-            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm leading-relaxed text-[#0f172a] outline-none transition-all duration-300 ease-in-out focus:border-[#2563eb]"
+            className={`${fieldInputClass} min-h-[5.25rem] resize-y`}
           />
         </div>
 
         <div>
-          <div className="relative">
-            <label
-              htmlFor="contrib-location"
-              className="mb-2 block text-base font-semibold text-[#0f172a]"
+          <label htmlFor="contrib-location" className={labelClass}>
+            Search location in Sham Shui Po <span className="font-bold text-[#2563eb]">*</span>
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+            <div
+              className={`relative min-w-0 flex-1 rounded-lg border border-[#082852]/12 bg-white shadow-[inset_0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] duration-200 focus-within:border-[#2563eb] focus-within:ring-2 focus-within:ring-[#2563eb]/20 hover:border-[#082852]/20 ${ghostSuggestionText ? 'overflow-hidden' : ''}`}
             >
-              Search location in Sham Shui Po <span className="text-[#2563eb]">*</span>
-            </label>
-            <div className="relative rounded-2xl border border-[#ffffff]/60 bg-white shadow-sm transition-all duration-300 ease-in-out focus-within:border-[#2563eb] focus-within:ring-4 focus-within:ring-[#2563eb]/20">
               {ghostSuggestionText ? (
                 <div
-                  className="pointer-events-none absolute inset-0 overflow-hidden whitespace-nowrap px-4 py-3 pr-36 text-base leading-relaxed text-[#c4b5a3]"
+                  className="pointer-events-none absolute inset-0 overflow-hidden whitespace-nowrap px-3 py-2.5 pr-28 text-[0.8125rem] leading-snug text-[#cbd5e1]"
                   aria-hidden="true"
                 >
                   {ghostSuggestionText}
@@ -402,38 +404,38 @@ export function ContributionForm({
                   setForm((prev) => ({ ...prev, placeName: '', latitude: null, longitude: null }))
                 }}
                 onKeyDown={handleLocationKeyDown}
-                placeholder="Search streets, shops, landmarks..."
-                  className="relative w-full rounded-2xl bg-transparent px-4 py-3 pr-36 text-base leading-relaxed text-[#0f172a] outline-none placeholder:text-[#c68f8f]"
+                placeholder="Streets, shops, landmarks…"
+                className="relative w-full rounded-lg bg-transparent px-3 py-2.5 pr-28 text-[0.8125rem] leading-snug text-[#0f172a] outline-none placeholder:text-[#94a3b8]"
               />
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9ca3af]">
-                {searchingLocations ? 'Searching' : topSuggestion ? 'Tab to accept' : ''}
+              <div className="pointer-events-none absolute right-3 top-1/2 max-w-[6.5rem] -translate-y-1/2 text-right text-[0.6rem] font-semibold uppercase leading-tight tracking-[0.12em] text-[#94a3b8]">
+                {searchingLocations ? 'Searching' : topSuggestion ? 'Tab · accept' : ''}
               </div>
             </div>
-          </div>
-          {form.latitude !== null && form.longitude !== null ? (
-              <p className="mt-2 rounded-lg bg-[#2563eb]/25 px-3 py-2 text-xs font-medium text-[#0f172a]">
-              Location selected: {form.placeName}
-            </p>
-          ) : (
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-[#334155]">
-                Press Tab, Right Arrow, Enter, or submit to use the best match.
-              </p>
+            {form.latitude === null || form.longitude === null ? (
               <button
                 type="button"
                 onClick={() => void handleConfirmLocation()}
                 disabled={locationQuery.trim().length < 2 || searchingLocations}
-                className="inline-flex min-h-[38px] items-center justify-center rounded-xl border border-[#2563eb]/50 bg-[#ffffff] px-3 py-2 text-xs font-semibold text-[#0f172a] transition-all duration-200 hover:bg-[#2563eb] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-[2.625rem] shrink-0 items-center justify-center self-start rounded-lg border border-[#082852]/18 bg-[#f8fafc] px-3.5 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[#082852] transition duration-200 hover:border-[#2563eb]/35 hover:bg-white disabled:cursor-not-allowed disabled:opacity-45 sm:self-auto sm:px-4"
               >
-                Confirm Location
+                Confirm
               </button>
-            </div>
+            ) : null}
+          </div>
+          {form.latitude !== null && form.longitude !== null ? (
+            <p className="mt-1.5 rounded-md border border-[#2563eb]/20 bg-[#eff6ff]/80 px-2.5 py-1.5 text-[0.7rem] font-medium leading-snug text-[#082852]">
+              Location: <span className="text-[#334155]">{form.placeName}</span>
+            </p>
+          ) : (
+            <p className="mt-1.5 text-[0.7rem] leading-snug text-[#64748b]">
+              Tab, Right Arrow, or Enter uses the best match. Confirm pins the location.
+            </p>
           )}
         </div>
 
-        <div>
-          <label htmlFor="contrib-media" className="mb-1 block text-sm font-medium text-[#0f172a]">
-            Upload media <span className="text-[#2563eb]">*</span>
+        <div className="rounded-lg border border-[#082852]/10 bg-[#fafbfc]/90 px-3 py-2.5">
+          <label htmlFor="contrib-media" className={labelClass}>
+            Upload media <span className="font-bold text-[#2563eb]">*</span>
           </label>
           <input
             id="contrib-media"
@@ -444,35 +446,43 @@ export function ContributionForm({
               const file = e.target.files?.[0] ?? null
               setForm((prev) => ({ ...prev, media: file }))
             }}
-            className="w-full rounded-xl border border-[#ffffff]/70 bg-white px-3 py-2 text-sm text-[#0f172a] file:mr-4 file:rounded-lg file:border-0 file:bg-[#2563eb] file:px-3 file:py-1 file:text-xs file:font-medium file:text-white"
+            className="mt-1 block w-full cursor-pointer text-[0.75rem] text-[#475569] file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-[#082852]/12 file:bg-white file:px-3 file:py-1.5 file:text-[0.65rem] file:font-semibold file:uppercase file:tracking-[0.12em] file:text-[#082852] file:shadow-sm file:transition file:duration-200 hover:file:border-[#2563eb]/35 hover:file:bg-[#f8fafc]"
           />
           {form.media ? (
-            <p className="mt-2 text-xs text-[#334155]">Selected: {form.media.name}</p>
-          ) : null}
+            <p className="mt-1.5 truncate text-[0.7rem] text-[#475569]" title={form.media.name}>
+              <span className="font-medium text-[#082852]">Selected:</span> {form.media.name}
+            </p>
+          ) : (
+            <p className="mt-1 text-[0.65rem] text-[#94a3b8]">Images, video, or audio.</p>
+          )}
         </div>
 
         {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+          <div className="rounded-lg border border-red-200/80 bg-red-50/90 px-3 py-2 text-[0.8125rem] leading-snug text-red-800">
+            {error}
+          </div>
         ) : null}
         {success ? (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+          <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/90 px-3 py-2 text-[0.8125rem] leading-snug text-emerald-800">
             {success}
           </div>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-[#2563eb]/70 bg-[#2563eb] px-4 py-2 text-sm font-medium text-white transition-all duration-300 ease-in-out hover:scale-[1.01] hover:bg-[#ffffff] hover:text-[#0f172a] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? 'Submitting...' : 'Submit Memory'}
-        </button>
+        <div className="pt-1">
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="inline-flex items-center justify-center rounded-lg border border-[#082852] bg-[#082852] px-5 py-2.5 text-[0.8125rem] font-semibold tracking-wide text-white shadow-sm transition duration-200 hover:bg-[#0a3569] hover:shadow-[0_4px_14px_rgba(8,40,82,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#082852]"
+          >
+            {loading ? 'Submitting…' : 'Submit memory'}
+          </button>
+        </div>
       </form>
 
       {showRecentEntries && entries.length > 0 ? (
-        <div className="mt-8 border-t border-[#ffffff]/50 pt-6">
-          <h3 className="text-sm tracking-widest text-[#2563eb] uppercase">Recent Contributions</h3>
-          <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mt-6 border-t border-[#082852]/10 pt-5">
+          <h3 className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[#2563eb]">Recent Contributions</h3>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {entries.map((entry) => (
               <article
                 key={entry.id}
