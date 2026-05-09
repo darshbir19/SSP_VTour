@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import interviewRecordingMp4 from '../assets/Video Recording.mp4'
+import audioInterviewMp3 from '../assets/Audio Recording 1.mp3'
 
 function FindingBlock({
   title,
@@ -312,7 +313,7 @@ export function FieldworkInterviewsSection({
                 <div className="relative flex h-full flex-col justify-end p-6 sm:p-8">
                   <DecorativeWaveform className="mb-6 text-white" />
                   <audio controls className="relative z-[1] w-full opacity-95 [&::-webkit-media-controls-panel]:bg-[#0f172a]/90">
-                    <source src="/audio/talking-inside-golden-computer-arcade.m4a" type="audio/mp4" />
+                    <source src={audioInterviewMp3} type="audio/mpeg" />
                   </audio>
                   <p className="mt-4 font-['Montserrat',sans-serif] text-[0.65rem] uppercase tracking-[0.28em] text-white/55">
                     Audio interview · Archive excerpt
