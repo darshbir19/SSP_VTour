@@ -1,3 +1,8 @@
+import gccHero from '../assets/gcc.jpeg'
+import apliuHero from '../assets/apliu.jpeg'
+import phsHero from '../assets/phs.jpg'
+import { useLanguage } from '../context/LanguageContext'
+
 interface HomePageProps {
   onOpenLocation: (locationId: string) => void
   onOpenContribute: () => void
@@ -8,7 +13,7 @@ const primaryLocations = [
   {
     id: 'apliu',
     title: 'Apliu Street Electronics Market',
-    imageUrl: '/images/Apliu_2025.jpg',
+    imageUrl: apliuHero,
     tag: 'Archive',
     storyCount: 'Stories: 24',
   },
@@ -22,27 +27,36 @@ const primaryLocations = [
   {
     id: 'pei-ho',
     title: 'Pei Ho Street Wet Market',
-    imageUrl: '/images/fieldtrip/fieldtrip-03.jpg',
+    imageUrl: phsHero,
     tag: 'Soundscape',
     storyCount: 'Stories: 21',
   },
   {
     id: 'golden',
     title: 'Golden Computer Arcade',
-    imageUrl: '/images/fieldtrip/fieldtrip-04.jpg',
+    imageUrl: gccHero,
     tag: '360 View',
     storyCount: 'Stories: 16',
   },
 ]
 
+const scrollDownLabelByLang = {
+  en: 'Scroll Down',
+  zh: '向下捲動',
+  hi: 'नीचे स्क्रॉल करें',
+} as const
+
 export function HomePage({ onOpenLocation, onOpenContribute, onScrollToMap }: HomePageProps) {
+  const { language } = useLanguage()
+  const scrollDownLabel = scrollDownLabelByLang[language]
+
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[rgba(255,255,255,1)] px-4 pb-10 pt-0 text-[#0f172a] sm:px-6 lg:px-10">
+    <div className="relative min-h-screen w-full overflow-hidden bg-[rgba(255,255,255,1)] px-4 pb-6 pt-0 text-[#0f172a] sm:px-6 lg:min-h-full lg:px-10 lg:pb-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.22),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(219,234,254,0.78),transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.98),rgba(239,246,255,0.94))]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#ffffff] to-transparent" />
 
-      <div className="fade-in relative z-10 mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl flex-col justify-center gap-8 pt-6 pb-4 sm:min-h-[calc(100vh-3.5rem)] sm:pt-8 lg:pt-10">
-        <header className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 text-center">
+      <div className="fade-in relative z-10 mx-auto flex w-full max-w-7xl flex-col justify-start gap-5 pb-28 pt-0 sm:gap-6 sm:pb-28 sm:pt-2 lg:gap-5 lg:pb-[8.5rem] lg:pt-1">
+        <header className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2 text-center sm:gap-3">
           <h1 className="font-serif text-4xl font-semibold tracking-[-0.04em] text-[#0f172a] sm:text-6xl lg:text-7xl">
             Explore Sham Shui Po
           </h1>
@@ -51,14 +65,14 @@ export function HomePage({ onOpenLocation, onOpenContribute, onScrollToMap }: Ho
           </p>
         </header>
 
-        <div>
+        <div className="-mt-0.5 sm:-mt-1 lg:-mt-2">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
             {primaryLocations.map((location) => (
               <button
                 key={location.title}
                 type="button"
                 onClick={() => onOpenLocation(location.id)}
-                className="group relative h-[58vh] min-h-[360px] cursor-pointer overflow-hidden rounded-[1.65rem] bg-[#ffffff] text-left shadow-[0_28px_80px_rgba(15,23,42,0.18)] outline-none ring-1 ring-[#2563eb]/35 transition duration-500 hover:-translate-y-1 hover:ring-[#2563eb] hover:shadow-[0_34px_95px_rgba(37,99,235,0.28)] focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-[#ffffff] md:h-[48vh] lg:h-[62vh]"
+                className="group relative h-[50vh] min-h-[300px] cursor-pointer overflow-hidden rounded-[1.65rem] bg-[#ffffff] text-left shadow-[0_28px_80px_rgba(15,23,42,0.18)] outline-none ring-1 ring-[#2563eb]/35 transition duration-500 hover:-translate-y-1 hover:ring-[#2563eb] hover:shadow-[0_34px_95px_rgba(37,99,235,0.28)] focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-[#ffffff] md:h-[42vh] md:min-h-[320px] lg:min-h-[260px] lg:h-[min(400px,calc(100svh-16rem))]"
                 aria-label={`Explore ${location.title}`}
               >
                 <div
@@ -91,9 +105,14 @@ export function HomePage({ onOpenLocation, onOpenContribute, onScrollToMap }: Ho
         type="button"
         onClick={onScrollToMap}
         aria-label="Scroll down to map"
-        className="absolute bottom-5 right-5 z-20 inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#2563eb]/45 bg-white/90 text-2xl text-[#2563eb] shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-[#2563eb] hover:bg-[#2563eb] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-white"
+        className="group absolute bottom-6 right-5 z-20 inline-flex flex-row-reverse items-center gap-2 rounded-full border border-[#2563eb]/45 bg-white/90 py-0 pr-0 pl-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-[#2563eb] hover:bg-[#2563eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-white sm:bottom-7 sm:gap-3 sm:pl-5 lg:bottom-8"
       >
-        ↓
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl text-[#2563eb] transition duration-300 group-hover:text-white">
+          ↓
+        </span>
+        <span className="max-w-[6.5rem] text-right text-[0.74rem] font-black uppercase leading-tight tracking-[0.2em] antialiased text-[#1d4ed8] transition duration-300 group-hover:text-white sm:max-w-[11rem] sm:text-[0.82rem] sm:tracking-[0.22em]">
+          {scrollDownLabel}
+        </span>
       </button>
     </div>
   )

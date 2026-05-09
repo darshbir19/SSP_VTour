@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 import { mapLocations } from '../data/mapLocations'
 import { isSupabaseConfigured, supabase, type SubmissionRow } from '../lib/supabase'
 import type { MapLocation } from '../types/mapLocation'
+import { FieldworkInterviewsSection } from './FieldworkInterviewsSection'
 import { GoogleStreetView } from './GoogleStreetView'
 import { TimelineScroll, type TimelineItem } from './TimelineScroll'
 import timelineImage1980 from '../assets/1.jpg'
@@ -211,6 +212,12 @@ interface MapTourProps {
   onLocationViewChange?: (open: boolean) => void
   /** Increment from App to reset MapTour from location view back to map (navbar Home, etc.). */
   navigateHomeSignal?: number
+  /** Increment from App to show map and scroll to #research-overview (navbar Research Overview). */
+  scrollToResearchOverviewSignal?: number
+  /** Increment from App to show map and scroll to #fieldwork-interviews. */
+  scrollToFieldworkInterviewsSignal?: number
+  /** Highlights Research dropdown items while corresponding sections are in view (map + scroll stack only). */
+  onResearchNavSectionChange?: (section: 'overview' | 'fieldwork' | null) => void
   submissionRefreshKey?: number
   directLocationId?: string | null
   directLocationRequestKey?: number
@@ -1038,10 +1045,156 @@ function ShamShuiPoLeafletMap({
   return <div ref={containerRef} className="absolute inset-0" aria-label="Leaflet Sham Shui Po media map" />
 }
 
+/** Scroll so the map stage clears the viewport and Research Overview sits below the archive navbar. */
+function scrollWindowPastMapToResearchOverview(): boolean {
+  const stage = document.getElementById('map-tour-map-stage')
+  const research = document.getElementById('research-overview')
+  if (!stage || !research) return false
+
+  const nav = document.querySelector('[data-archive-navbar]')
+  const navH = nav instanceof HTMLElement ? Math.ceil(nav.getBoundingClientRect().height) : 0
+
+  const docScroll = window.scrollY || document.documentElement.scrollTop
+  const stageBottomDoc = stage.getBoundingClientRect().bottom + docScroll
+
+  const gapPx = 24
+  window.scrollTo({ top: Math.max(0, stageBottomDoc + navH + gapPx), behavior: 'auto' })
+  return true
+}
+
+/** Scroll so `#elementId` aligns below the fixed archive navbar (sections below the map column). */
+function scrollDocumentToElementBelowArchiveNav(elementId: string): boolean {
+  const el = document.getElementById(elementId)
+  if (!el) return false
+
+  const nav = document.querySelector('[data-archive-navbar]')
+  const navH = nav instanceof HTMLElement ? Math.ceil(nav.getBoundingClientRect().height) : 0
+
+  const docScroll = window.scrollY || document.documentElement.scrollTop
+  const topDoc = el.getBoundingClientRect().top + docScroll
+
+  const gapPx = 24
+  window.scrollTo({ top: Math.max(0, topDoc - navH - gapPx), behavior: 'auto' })
+  return true
+}
+
+interface ResearchOverviewSectionProps {
+  onNavigateHome?: () => void
+  homeAriaLabel: string
+  homeCaption: string
+  onScrollToFieldwork?: () => void
+  scrollToFieldworkAria: string
+  scrollDownLabel: string
+}
+
+function ResearchOverviewSection({
+  onNavigateHome,
+  homeAriaLabel,
+  homeCaption,
+  onScrollToFieldwork,
+  scrollToFieldworkAria,
+  scrollDownLabel,
+}: ResearchOverviewSectionProps) {
+  return (
+    <section
+      id="research-overview"
+      aria-labelledby="research-overview-heading"
+      className="relative scroll-mt-[calc(3rem+32px)] border-t border-[#2563eb]/25 bg-gradient-to-b from-[#f8fafc] to-[#ffffff] px-4 pb-24 pt-10 text-left text-[#0f172a] sm:px-8 sm:pb-28 sm:pt-14 lg:pb-[7.5rem]"
+    >
+      {onNavigateHome && (
+        <div className="pointer-events-none absolute right-4 top-3 z-20 flex flex-col items-center gap-1 sm:right-8 sm:top-6">
+          <button
+            type="button"
+            onClick={onNavigateHome}
+            aria-label={homeAriaLabel}
+            title={homeAriaLabel}
+            className="group pointer-events-auto flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#2563eb]/45 bg-white/92 text-[#2563eb] shadow-[0_14px_40px_rgba(15,23,42,0.14)] backdrop-blur transition duration-300 hover:border-[#2563eb] hover:bg-[#2563eb] hover:text-white hover:shadow-[0_18px_48px_rgba(37,99,235,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+          </button>
+          <span className="pointer-events-none text-center text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[#334155] drop-shadow-sm">
+            {homeCaption}
+          </span>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-3xl">
+        <h2
+          id="research-overview-heading"
+          className="font-['Georgia',serif] text-3xl font-black leading-[1.15] tracking-tight text-[#082852] sm:text-4xl lg:text-[2.75rem]"
+        >
+          Research Overview
+        </h2>
+        <div className="mt-6 space-y-5 font-['Montserrat',sans-serif] text-base leading-relaxed text-[#334155] sm:mt-7 sm:text-lg">
+          <p>
+            This project explores Sham Shui Po through the lens of sensorial urbanism, examining how urban life is
+            experienced through sound, smell, touch, movement, memory, and everyday interaction rather than through
+            vision alone. As redevelopment and gentrification continue to transform the district, the research
+            investigates how these changes reshape the sensory identity, collective memory, and lived experiences of the
+            community.
+          </p>
+          <p className="font-medium text-[#0f172a]">
+            Using interviews, field recordings, photography, participant observation, and community contributions, the
+            study is guided by four central research questions:
+          </p>
+          <ol className="mt-1 list-decimal space-y-3 pl-6 marker:font-semibold marker:text-[#2563eb] sm:space-y-4">
+            <li className="pl-2">
+              How do the five senses shape the urban experience of residents in Sham Shui Po?
+            </li>
+            <li className="pl-2">
+              How do sensory memories of older residents differ from the experiences of younger individuals?
+            </li>
+            <li className="pl-2">
+              In what ways does redevelopment and gentrification reshape the sensory identity of the district?
+            </li>
+            <li className="pl-2">
+              How can sensory richness and sensory memory be considered in future urban planning?
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      {onScrollToFieldwork && (
+        <button
+          type="button"
+          onClick={onScrollToFieldwork}
+          aria-label={scrollToFieldworkAria}
+          title={scrollToFieldworkAria}
+          className="group absolute bottom-6 right-5 z-20 inline-flex flex-row-reverse items-center gap-2 rounded-full border border-[#2563eb]/45 bg-white/90 py-0 pr-0 pl-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-[#2563eb] hover:bg-[#2563eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-white sm:bottom-7 sm:gap-3 sm:pl-5 lg:bottom-8"
+        >
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl text-[#2563eb] transition duration-300 group-hover:text-white">
+            ↓
+          </span>
+          <span className="max-w-[6.5rem] text-right text-[0.74rem] font-black uppercase leading-tight tracking-[0.2em] antialiased text-[#1d4ed8] transition duration-300 group-hover:text-white sm:max-w-[11rem] sm:text-[0.82rem] sm:tracking-[0.22em]">
+            {scrollDownLabel}
+          </span>
+        </button>
+      )}
+    </section>
+  )
+}
+
 export function MapTour({
   onBackToHome,
   onLocationViewChange,
   navigateHomeSignal = 0,
+  scrollToResearchOverviewSignal = 0,
+  scrollToFieldworkInterviewsSignal = 0,
+  onResearchNavSectionChange,
   submissionRefreshKey = 0,
   directLocationId,
   directLocationRequestKey = 0,
@@ -1051,10 +1204,28 @@ export function MapTour({
   const [view, setView] = useState<'map' | 'location'>('map')
   const [submissions, setSubmissions] = useState<SubmissionRow[]>(STATIC_CONTRIBUTIONS)
   const lastNavigateHomeSignalRef = useRef(0)
+  const lastResearchOverviewSignalRef = useRef(0)
+  const lastResearchOverviewScrollDoneRef = useRef(0)
+  const lastFieldworkInterviewsSignalRef = useRef(0)
+  const lastFieldworkInterviewsScrollDoneRef = useRef(0)
 
   useLayoutEffect(() => {
     if (navigateHomeSignal > lastNavigateHomeSignalRef.current) {
       lastNavigateHomeSignalRef.current = navigateHomeSignal
+      setView('map')
+      onLocationViewChange?.(false)
+      return
+    }
+
+    if (scrollToResearchOverviewSignal > lastResearchOverviewSignalRef.current) {
+      lastResearchOverviewSignalRef.current = scrollToResearchOverviewSignal
+      setView('map')
+      onLocationViewChange?.(false)
+      return
+    }
+
+    if (scrollToFieldworkInterviewsSignal > lastFieldworkInterviewsSignalRef.current) {
+      lastFieldworkInterviewsSignalRef.current = scrollToFieldworkInterviewsSignal
       setView('map')
       onLocationViewChange?.(false)
       return
@@ -1070,7 +1241,75 @@ export function MapTour({
       }
     }
     onLocationViewChange?.(view === 'location')
-  }, [navigateHomeSignal, directLocationId, directLocationRequestKey, view, onLocationViewChange])
+  }, [
+    navigateHomeSignal,
+    scrollToResearchOverviewSignal,
+    scrollToFieldworkInterviewsSignal,
+    directLocationId,
+    directLocationRequestKey,
+    view,
+    onLocationViewChange,
+  ])
+
+  useEffect(() => {
+    if (scrollToResearchOverviewSignal <= 0) return
+    if (scrollToResearchOverviewSignal <= lastResearchOverviewScrollDoneRef.current) return
+    if (view !== 'map') return
+
+    let cancelled = false
+
+    const scrollResearchIntoView = () => {
+      if (cancelled) return
+      if (scrollWindowPastMapToResearchOverview()) {
+        lastResearchOverviewScrollDoneRef.current = scrollToResearchOverviewSignal
+      }
+    }
+
+    let outerRaf = 0
+    let innerRaf = 0
+
+    outerRaf = window.requestAnimationFrame(() => {
+      innerRaf = window.requestAnimationFrame(() => {
+        scrollResearchIntoView()
+      })
+    })
+
+    return () => {
+      cancelled = true
+      window.cancelAnimationFrame(outerRaf)
+      window.cancelAnimationFrame(innerRaf)
+    }
+  }, [scrollToResearchOverviewSignal, view])
+
+  useEffect(() => {
+    if (scrollToFieldworkInterviewsSignal <= 0) return
+    if (scrollToFieldworkInterviewsSignal <= lastFieldworkInterviewsScrollDoneRef.current) return
+    if (view !== 'map') return
+
+    let cancelled = false
+
+    const runScroll = () => {
+      if (cancelled) return
+      if (scrollDocumentToElementBelowArchiveNav('fieldwork-interviews')) {
+        lastFieldworkInterviewsScrollDoneRef.current = scrollToFieldworkInterviewsSignal
+      }
+    }
+
+    let outerRaf = 0
+    let innerRaf = 0
+
+    outerRaf = window.requestAnimationFrame(() => {
+      innerRaf = window.requestAnimationFrame(() => {
+        runScroll()
+      })
+    })
+
+    return () => {
+      cancelled = true
+      window.cancelAnimationFrame(outerRaf)
+      window.cancelAnimationFrame(innerRaf)
+    }
+  }, [scrollToFieldworkInterviewsSignal, view])
 
   useEffect(() => {
     if (!SHOW_CONTRIBUTION_MARKERS) {
@@ -1113,14 +1352,23 @@ export function MapTour({
     en: {
       backToHomeAria: 'Go to homepage',
       homepageLabel: 'Homepage',
+      scrollToResearchAria: 'Scroll to Research Overview',
+      scrollToFieldworkAria: 'Scroll to Fieldwork and Interviews',
+      scrollDownLabel: 'Scroll Down',
     },
     zh: {
       backToHomeAria: '返回主頁',
       homepageLabel: '主頁',
+      scrollToResearchAria: '前往研究概覽',
+      scrollToFieldworkAria: '前往田野調查與訪談',
+      scrollDownLabel: '向下捲動',
     },
     hi: {
       backToHomeAria: 'होमपेज पर जाएँ',
       homepageLabel: 'होमपेज',
+      scrollToResearchAria: 'अनुसंधान अवलोकन पर जाएँ',
+      scrollToFieldworkAria: 'फ़ील्डवर्क और साक्षात्कार पर जाएँ',
+      scrollDownLabel: 'नीचे स्क्रॉल करें',
     },
   }[language]
 
@@ -1140,6 +1388,61 @@ export function MapTour({
     setView('location')
   }, [])
 
+  useEffect(() => {
+    if (!onResearchNavSectionChange) return
+
+    if (view !== 'map') {
+      onResearchNavSectionChange(null)
+      return
+    }
+
+    const overview = document.getElementById('research-overview')
+    const fieldwork = document.getElementById('fieldwork-interviews')
+    const nav = document.querySelector('[data-archive-navbar]')
+    const navH = nav instanceof HTMLElement ? Math.ceil(nav.getBoundingClientRect().height) : 52
+
+    const ratios = new Map<string, number>()
+    const rootMarginTop = Math.min(navH + 20, Math.round(window.innerHeight * 0.38))
+    const rootMargin = `-${rootMarginTop}px 0px -44% 0px`
+
+    const publish = () => {
+      const ro = ratios.get('research-overview') ?? 0
+      const rf = ratios.get('fieldwork-interviews') ?? 0
+      const t = 0.08
+      let next: 'overview' | 'fieldwork' | null = null
+      if (rf >= t && rf >= ro - 0.04) next = 'fieldwork'
+      else if (ro >= t) next = 'overview'
+      onResearchNavSectionChange(next)
+    }
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          ratios.set((e.target as HTMLElement).id, e.intersectionRatio)
+        }
+        publish()
+      },
+      {
+        threshold: [0, 0.05, 0.1, 0.15, 0.22, 0.35, 0.5, 0.65, 0.8, 1],
+        rootMargin,
+      },
+    )
+
+    if (overview) obs.observe(overview)
+    if (fieldwork) obs.observe(fieldwork)
+
+    const onScrollResize = () => publish()
+    window.addEventListener('scroll', onScrollResize, { passive: true })
+    window.addEventListener('resize', onScrollResize)
+    publish()
+
+    return () => {
+      obs.disconnect()
+      window.removeEventListener('scroll', onScrollResize)
+      window.removeEventListener('resize', onScrollResize)
+    }
+  }, [view, onResearchNavSectionChange])
+
   if (view === 'location') {
     return (
       <LocationPage location={activeLocation} language={language} />
@@ -1147,57 +1450,88 @@ export function MapTour({
   }
 
   return (
-    <div className="fade-in relative min-h-screen w-full overflow-hidden bg-[#ffffff] text-[#0f172a]">
-      <section className="absolute inset-0 overflow-hidden bg-[#ffffff]">
-        <ShamShuiPoLeafletMap
-          activeId={activeId}
-          language={language}
-          locations={mapLocations}
-          submissions={submissions}
-          getLocationName={getLocationName}
-          onLocationSelect={handleLocationSelect}
-        />
-        <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(37,99,235,0.18),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(219,234,254,0.34),transparent_36%)]" />
-        <div className="pointer-events-none absolute bottom-6 left-4 z-[1000] flex max-w-[min(24rem,calc(100%-2rem))] items-center gap-3 rounded-2xl border border-[#2563eb]/20 bg-white/92 px-5 py-4 text-sm font-semibold leading-relaxed text-[#0f172a] shadow-sm backdrop-blur sm:left-8 sm:text-base">
-          <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-xl font-black leading-none text-white shadow-[0_0_0_6px_rgba(37,99,235,0.16)]">
-            +
-          </span>
-          <span>Click on community contributed media in order to view them.</span>
-        </div>
-        <div className="pointer-events-none absolute top-4 right-4 z-[1000] flex flex-col items-center gap-1 sm:top-6 sm:right-8">
-          {onBackToHome && (
-            <>
-              <button
-                type="button"
-                onClick={onBackToHome}
-                aria-label={mapCopy.backToHomeAria}
-                title={mapCopy.backToHomeAria}
-                className="group pointer-events-auto flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#2563eb]/45 bg-white/92 text-[#2563eb] shadow-[0_14px_40px_rgba(15,23,42,0.14)] backdrop-blur transition duration-300 hover:border-[#2563eb] hover:bg-[#2563eb] hover:text-white hover:shadow-[0_18px_48px_rgba(37,99,235,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-              </button>
-              <span className="pointer-events-none text-center text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[#334155] drop-shadow-sm">
-                {mapCopy.homepageLabel}
+    <div className="fade-in w-full bg-[#ffffff] text-[#0f172a]">
+      <div id="map-tour-map-stage" className="relative min-h-[100svh] w-full lg:min-h-screen">
+        <section className="absolute inset-0 overflow-hidden bg-[#ffffff]">
+          <ShamShuiPoLeafletMap
+            activeId={activeId}
+            language={language}
+            locations={mapLocations}
+            submissions={submissions}
+            getLocationName={getLocationName}
+            onLocationSelect={handleLocationSelect}
+          />
+          <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(37,99,235,0.18),transparent_38%),radial-gradient(circle_at_80%_78%,rgba(219,234,254,0.34),transparent_36%)]" />
+          <div className="pointer-events-none absolute bottom-6 left-4 z-[1000] flex max-w-[min(24rem,calc(100%-2rem))] items-center gap-3 rounded-2xl border border-[#2563eb]/20 bg-white/92 px-5 py-4 text-sm font-semibold leading-relaxed text-[#0f172a] shadow-sm backdrop-blur sm:left-8 sm:text-base">
+            <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#2563eb] text-xl font-black leading-none text-white shadow-[0_0_0_6px_rgba(37,99,235,0.16)]">
+              +
+            </span>
+            <span>Click on community contributed media in order to view them.</span>
+          </div>
+          <div className="pointer-events-none absolute bottom-5 right-5 z-[1000]">
+            <button
+              type="button"
+              onClick={() => scrollWindowPastMapToResearchOverview()}
+              aria-label={mapCopy.scrollToResearchAria}
+              title={mapCopy.scrollToResearchAria}
+              className="group pointer-events-auto inline-flex flex-row-reverse items-center gap-2 rounded-full border border-[#2563eb]/45 bg-white/90 py-0 pr-0 pl-4 shadow-[0_18px_50px_rgba(15,23,42,0.18)] backdrop-blur transition duration-300 hover:-translate-y-1 hover:border-[#2563eb] hover:bg-[#2563eb] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-4 focus-visible:ring-offset-white sm:gap-3 sm:pl-5"
+            >
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl text-[#2563eb] transition duration-300 group-hover:text-white">
+                ↓
               </span>
-            </>
-          )}
-        </div>
-      </section>
+              <span className="max-w-[6.5rem] text-right text-[0.74rem] font-black uppercase leading-tight tracking-[0.2em] antialiased text-[#1d4ed8] transition duration-300 group-hover:text-white sm:max-w-[11rem] sm:text-[0.82rem] sm:tracking-[0.22em]">
+                {mapCopy.scrollDownLabel}
+              </span>
+            </button>
+          </div>
+          <div className="pointer-events-none absolute top-4 right-4 z-[1000] flex flex-col items-center gap-1 sm:top-6 sm:right-8">
+            {onBackToHome && (
+              <>
+                <button
+                  type="button"
+                  onClick={onBackToHome}
+                  aria-label={mapCopy.backToHomeAria}
+                  title={mapCopy.backToHomeAria}
+                  className="group pointer-events-auto flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#2563eb]/45 bg-white/92 text-[#2563eb] shadow-[0_14px_40px_rgba(15,23,42,0.14)] backdrop-blur transition duration-300 hover:border-[#2563eb] hover:bg-[#2563eb] hover:text-white hover:shadow-[0_18px_48px_rgba(37,99,235,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                  </svg>
+                </button>
+                <span className="pointer-events-none text-center text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[#334155] drop-shadow-sm">
+                  {mapCopy.homepageLabel}
+                </span>
+              </>
+            )}
+          </div>
+        </section>
+      </div>
 
+      <ResearchOverviewSection
+        onNavigateHome={onBackToHome}
+        homeAriaLabel={mapCopy.backToHomeAria}
+        homeCaption={mapCopy.homepageLabel}
+        onScrollToFieldwork={() => scrollDocumentToElementBelowArchiveNav('fieldwork-interviews')}
+        scrollToFieldworkAria={mapCopy.scrollToFieldworkAria}
+        scrollDownLabel={mapCopy.scrollDownLabel}
+      />
+      <FieldworkInterviewsSection
+        onNavigateHome={onBackToHome}
+        homeAriaLabel={mapCopy.backToHomeAria}
+        homeCaption={mapCopy.homepageLabel}
+      />
     </div>
   )
 }
@@ -1399,7 +1733,13 @@ function LocationPage({ location, language }: LocationPageProps) {
   }
 
   const heroDescription = locationHeroDescriptions[location.id]?.[language] ?? displaySummary
-  const isGoldenComputerArcade = location.id === 'golden'
+  const immersiveLocationIds = new Set(['golden', 'apliu', 'fuk-wing', 'pei-ho'])
+  const usesImmersiveLayout = immersiveLocationIds.has(location.id)
+  const sectionIds = {
+    details: `${location.id}-details`,
+    soundscapes: `${location.id}-soundscapes`,
+    memoryScroll: `${location.id}-memory-scroll`,
+  } as const
   const standardLocationViewClass =
     'h-full min-h-[320px] w-full transition-transform duration-500 ease-in-out hover:scale-[1.01] sm:min-h-[460px] lg:min-h-[560px]'
 
@@ -1454,7 +1794,7 @@ function LocationPage({ location, language }: LocationPageProps) {
     )
   }
 
-  if (isGoldenComputerArcade) {
+  if (usesImmersiveLayout) {
     return (
       <div className="fade-in min-h-screen w-full overflow-auto bg-[#ffffff] text-[#0f172a]">
         <section className="relative px-4 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12">
@@ -1466,13 +1806,13 @@ function LocationPage({ location, language }: LocationPageProps) {
             </div>
             <div className="absolute bottom-10 right-4 z-20 flex flex-col gap-2 sm:right-6">
               <a
-                href="#golden-details"
+                href={`#${sectionIds.details}`}
                 className="rounded-full border border-white/35 bg-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lg backdrop-blur transition hover:bg-white/25"
               >
                 Details ↓
               </a>
               <a
-                href="#golden-soundscapes"
+                href={`#${sectionIds.soundscapes}`}
                 className="rounded-full border border-white/35 bg-[#2563eb] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white shadow-lg backdrop-blur transition hover:bg-[#ffffff] hover:text-[#0f172a]"
               >
                 Soundscape ↓
@@ -1481,7 +1821,7 @@ function LocationPage({ location, language }: LocationPageProps) {
           </div>
         </section>
 
-        <section id="golden-details" className="scroll-mt-6 px-4 pb-12 pt-4 sm:px-8 sm:pb-16">
+        <section id={sectionIds.details} className="scroll-mt-6 px-4 pb-12 pt-4 sm:px-8 sm:pb-16">
           <div className="mx-auto max-w-6xl rounded-[2rem] border border-[#2563eb]/50 bg-[#ffffff] px-6 py-10 shadow-[0_28px_80px_rgba(37,99,235,0.18)] sm:px-8 sm:py-14 lg:px-10 lg:py-16">
             <p className="text-sm tracking-widest text-[#2563eb] uppercase">{locationCopy.pageLabel}</p>
             <h2 className="mt-2 break-words font-['Georgia',serif] text-4xl font-black leading-tight text-[#0f172a] sm:text-5xl lg:text-[3.75rem]">
@@ -1493,7 +1833,7 @@ function LocationPage({ location, language }: LocationPageProps) {
           </div>
         </section>
 
-        <section id="golden-soundscapes" className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
+        <section id={sectionIds.soundscapes} className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
           <div className="mx-auto max-w-6xl">
             <div className="mb-6 rounded-2xl border border-[#2563eb]/50 bg-[#ffffff] p-5 shadow-sm">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
@@ -1613,7 +1953,7 @@ function LocationPage({ location, language }: LocationPageProps) {
           </div>
         </section>
 
-        <section id="golden-memory-scroll" className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
+        <section id={sectionIds.memoryScroll} className="scroll-mt-6 px-4 pb-12 sm:px-8 sm:pb-16">
           <div className="mx-auto max-w-6xl border-t border-[#2563eb]/50 pt-8">
             <TimelineScroll
               title="Memory Scroll"

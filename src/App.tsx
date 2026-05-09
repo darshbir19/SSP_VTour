@@ -16,6 +16,9 @@ export function App() {
     requestKey: 0,
   })
   const [navigateHomeSignal, setNavigateHomeSignal] = useState(0)
+  const [researchOverviewSignal, setResearchOverviewSignal] = useState(0)
+  const [fieldworkInterviewsSignal, setFieldworkInterviewsSignal] = useState(0)
+  const [activeResearchNav, setActiveResearchNav] = useState<'overview' | 'fieldwork' | null>(null)
   const [mapSectionReachedTop, setMapSectionReachedTop] = useState(false)
 
   useEffect(() => {
@@ -43,12 +46,13 @@ export function App() {
   const handleNavigateHome = () => {
     setNavigateHomeSignal((n) => n + 1)
     setLocationDetailOpen(false)
+    setActiveResearchNav(null)
     setHomepageLocationRequest((request) => ({
       locationId: null,
       requestKey: request.requestKey + 1,
     }))
     window.requestAnimationFrame(() => {
-      homeSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+      homeSectionRef.current?.scrollIntoView({ behavior: 'auto' })
     })
   }
 
@@ -59,9 +63,31 @@ export function App() {
       requestKey: request.requestKey + 1,
     }))
     window.requestAnimationFrame(() => {
-      mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+      mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })
     })
   }
+
+  const handleScrollToResearchOverview = useCallback(() => {
+    mapSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setResearchOverviewSignal((n) => n + 1)
+      })
+    })
+  }, [])
+
+  const handleScrollToFieldworkInterviews = useCallback(() => {
+    mapSectionRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setFieldworkInterviewsSignal((n) => n + 1)
+      })
+    })
+  }, [])
+
+  const handleResearchNavSectionChange = useCallback((section: 'overview' | 'fieldwork' | null) => {
+    setActiveResearchNav((prev) => (prev === section ? prev : section))
+  }, [])
 
   const handleLocationViewChange = useCallback((open: boolean) => {
     setLocationDetailOpen((was) => (was === open ? was : open))
@@ -74,26 +100,29 @@ export function App() {
 
   return (
     <LanguageProvider>
-      <div className="relative min-h-screen w-full overflow-x-hidden bg-[#ffffff] text-[#0f172a] scroll-smooth">
+      <div className="relative min-h-screen w-full overflow-x-hidden bg-[#ffffff] text-[#0f172a]">
         {showArchiveNavbar && (
           <>
             <CinematicNavbar
               onOpenLocation={handleOpenHomepageLocation}
               onOpenContribute={() => setContributeOpen(true)}
-              onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+              onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })}
               onNavigateHome={handleNavigateHome}
+              onScrollToResearchOverview={handleScrollToResearchOverview}
+              onScrollToFieldworkInterviews={handleScrollToFieldworkInterviews}
+              activeResearchNavItem={activeResearchNav}
             />
             <div className="h-12 w-full shrink-0" aria-hidden />
           </>
         )}
         <section
           ref={homeSectionRef}
-          className={locationDetailOpen ? 'hidden' : 'min-h-screen w-full'}
+          className={locationDetailOpen ? 'hidden' : 'min-h-screen w-full lg:min-h-[calc(100svh-7rem)]'}
         >
           <HomePage
             onOpenLocation={handleOpenHomepageLocation}
             onOpenContribute={() => setContributeOpen(true)}
-            onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            onScrollToMap={() => mapSectionRef.current?.scrollIntoView({ behavior: 'auto' })}
           />
         </section>
         <section ref={mapSectionRef} className="min-h-screen w-full">
@@ -101,6 +130,9 @@ export function App() {
             onBackToHome={handleNavigateHome}
             onLocationViewChange={handleLocationViewChange}
             navigateHomeSignal={navigateHomeSignal}
+            scrollToResearchOverviewSignal={researchOverviewSignal}
+            scrollToFieldworkInterviewsSignal={fieldworkInterviewsSignal}
+            onResearchNavSectionChange={handleResearchNavSectionChange}
             submissionRefreshKey={submissionRefreshKey}
             directLocationId={homepageLocationRequest.locationId}
             directLocationRequestKey={homepageLocationRequest.requestKey}

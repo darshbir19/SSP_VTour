@@ -3,6 +3,8 @@ import { useState } from 'react'
 type DropdownItem = {
   label: string
   onClick?: () => void
+  /** When set, this row is highlighted while the matching research scroll section is in view. */
+  researchNavHighlight?: 'overview' | 'fieldwork'
 }
 
 type NavSection = {
@@ -16,6 +18,9 @@ interface CinematicNavbarProps {
   onOpenContribute: () => void
   onScrollToMap: () => void
   onNavigateHome?: () => void
+  onScrollToResearchOverview?: () => void
+  onScrollToFieldworkInterviews?: () => void
+  activeResearchNavItem?: 'overview' | 'fieldwork' | null
 }
 
 export function CinematicNavbar({
@@ -23,6 +28,9 @@ export function CinematicNavbar({
   onOpenContribute,
   onScrollToMap,
   onNavigateHome,
+  onScrollToResearchOverview,
+  onScrollToFieldworkInterviews,
+  activeResearchNavItem = null,
 }: CinematicNavbarProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -54,12 +62,17 @@ export function CinematicNavbar({
       label: 'Research',
       kicker: 'Ethnographic foundation',
       items: [
-        { label: 'Research Overview' },
-        { label: 'Methodology' },
-        { label: 'Fieldwork & Interviews' },
-        { label: 'Multisensory Urbanism' },
+        {
+          label: 'Research Overview',
+          onClick: onScrollToResearchOverview,
+          researchNavHighlight: 'overview',
+        },
+        {
+          label: 'Fieldwork & Interviews',
+          onClick: onScrollToFieldworkInterviews,
+          researchNavHighlight: 'fieldwork',
+        },
         { label: 'Gentrification & Memory' },
-        { label: 'References / Bibliography' },
       ],
     },
     {
@@ -97,11 +110,14 @@ export function CinematicNavbar({
   const goHome = () => {
     setActiveDropdown(null)
     setMobileOpen(false)
-    ;(onNavigateHome ?? (() => window.scrollTo({ top: 0, behavior: 'smooth' })))()
+    ;(onNavigateHome ?? (() => window.scrollTo({ top: 0, behavior: 'auto' })))()
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-white/15 bg-[#082852] text-white shadow-[0_8px_28px_rgba(8,40,82,0.35)]">
+    <nav
+      data-archive-navbar
+      className="fixed top-0 left-0 right-0 z-[100] w-full border-b border-white/15 bg-[#082852] text-white shadow-[0_8px_28px_rgba(8,40,82,0.35)]"
+    >
       <div className="mx-auto flex h-12 w-full max-w-[1440px] items-center justify-between px-4 sm:px-7 lg:px-9">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
@@ -169,16 +185,24 @@ export function CinematicNavbar({
                     {section.kicker}
                   </p>
                   <div className="py-1">
-                    {section.items.map((item) => (
-                      <button
-                        key={item.label}
-                        type="button"
-                        onClick={() => handleItemClick(item)}
-                        className="flex w-full items-center px-4 py-3 text-left text-[1rem] font-medium leading-snug text-white transition duration-300 hover:bg-white/10 xl:text-[1.0625rem]"
-                      >
-                        {item.label}
-                      </button>
-                    ))}
+                    {section.items.map((item) => {
+                      const researchActive =
+                        section.label === 'Research' &&
+                        item.researchNavHighlight &&
+                        activeResearchNavItem === item.researchNavHighlight
+                      return (
+                        <button
+                          key={item.label}
+                          type="button"
+                          onClick={() => handleItemClick(item)}
+                          className={`flex w-full items-center px-4 py-3 text-left text-[1rem] font-medium leading-snug text-white transition duration-300 hover:bg-white/10 xl:text-[1.0625rem] ${
+                            researchActive ? 'bg-white/14 ring-1 ring-inset ring-white/35' : ''
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -270,16 +294,24 @@ export function CinematicNavbar({
                   <div className={`grid transition-all duration-300 ${isActive ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                     <div className="overflow-hidden">
                       <div className="pb-3">
-                        {section.items.map((item) => (
-                          <button
-                            key={item.label}
-                            type="button"
-                            onClick={() => handleItemClick(item)}
-                            className="flex w-full px-4 py-3.5 text-left text-base font-medium leading-snug text-white transition hover:bg-white/10"
-                          >
-                            {item.label}
-                          </button>
-                        ))}
+                        {section.items.map((item) => {
+                          const researchActive =
+                            section.label === 'Research' &&
+                            item.researchNavHighlight &&
+                            activeResearchNavItem === item.researchNavHighlight
+                          return (
+                            <button
+                              key={item.label}
+                              type="button"
+                              onClick={() => handleItemClick(item)}
+                              className={`flex w-full px-4 py-3.5 text-left text-base font-medium leading-snug text-white transition hover:bg-white/10 ${
+                                researchActive ? 'bg-white/12 ring-1 ring-inset ring-white/30' : ''
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
