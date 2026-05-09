@@ -51,8 +51,8 @@ export function CinematicNavbar({
           onClick: () => onOpenLocation('apliu'),
         },
         {
-          label: 'Tai Nan Street',
-          onClick: onScrollToMap,
+          label: 'Golden Computer Arcade',
+          onClick: () => onOpenLocation('golden'),
         },
         {
           label: 'Pei Ho Street Market',
